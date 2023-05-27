@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<style>
+#brand {
+  transition: transform .7s ease-in-out;
+}
+#brand:hover {
+  transform: rotate(360deg);
+}
+pre {
+    white-space: pre-wrap;
+}
+</style>
+
+
+
+<div id="summary" class="container" role="document">
+  <header role="banner">
+    <h1 class="pull-right" style="margin: 0;">
+    <h1 class="text-grey text-center">⚡️ Private Search</h1>
+    <div class="clearfix"></div>
+  </header>
+
+      <form action="/search" method="get">
+		  <p class="grouped">
+                <input
+                  type="search"
+                  name="q"
+                  id="q"
+                  placeholder="Search Your History"
+				  value="{{query}}"
+				  />
+                <button class="button icon-only">
+                  <img src="https://icongr.am/feather/search.svg?size=16" />
+                </button>
+			</p>
+      </form>
+      {% for hit in hits%}
+
+	  <p class="grouped">
+	  <h3>{{loop.index}}. <a href="{{hit.payload['url']}}">{{hit.payload['url']}}</a></h3>
+	  <span class="text-italic">{{hit.payload['sentence']}}</span>
+      </p>
+	  {% endfor %}
+</div>
+{% endblock body %}

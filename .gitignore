@@ -1,0 +1,7 @@
+*.un~
+__pycache__
+places.egg-info
+.DS_Store
+bin
+lib
+include
