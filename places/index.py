@@ -3,7 +3,7 @@ import sys
 
 from places.extractor import Extractor
 from places.scrap import WebScrap
-from places.places import Places
+from places.places_db import Places
 from places.vector_db import Upserter
 
 
