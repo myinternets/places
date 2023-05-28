@@ -8,3 +8,10 @@ index:
 
 web:
 	bin/python places/web.py
+
+build-docker:
+	docker build -t tarek/places .
+
+run-docker:
+	docker run -it --rm -p 6333:6333 -p 8080:8080 -v storage:/qdrant/storage tarek/places
+
