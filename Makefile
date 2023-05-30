@@ -18,7 +18,7 @@ build-docker:
 	docker build -t tarek/places .
 
 run-docker:
-	docker run -it --rm -p 6333:6333 -p 8080:8080 -v storage:/qdrant/storage tarek/places
+	docker run -it --rm -p 6333:6333 -p 8080:8080 -v storage:/app/docker/storage tarek/places
 
 lint:
 	bin/ruff places

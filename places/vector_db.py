@@ -10,14 +10,18 @@ class Upserter:
 
     async def post_url(self, client, url, text):
         doc = {"url": url, "text": text}
-
         try:
             async with client.post(
-                f"{self.server}/index", json=doc, raise_for_status=True
+                f"{self.server}/index", json=doc
             ) as resp:
+
                 res = await resp.json()
-                res["url"] = url
-                print(f"[scrap] {res}")
+                if resp.status > 299:
+                    print(res['error'])
+                    return None
+                else:
+                    res["url"] = url
+                    print(f"[scrap] {res}")
         except Exception as e:
             print(f"[scrap] Could not post {url} {e}")
             return None

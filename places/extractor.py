@@ -7,6 +7,7 @@ from txtai.pipeline.data import Segmentation
 
 
 print("Loading models")
+import nltk; nltk.download('punkt')
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 # this line segfaults in Docker for some reason
