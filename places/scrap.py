@@ -14,7 +14,7 @@ class WebScrap:
         self._tasks = []
 
     async def get_url(self, client, url):
-        print(f"[scrap] reading {url}")
+        # print(f"[scrap] reading {url}")
         try:
             async with client.head(url) as resp:
                 ct = resp.content_type

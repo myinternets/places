@@ -1,0 +1,7 @@
+.git
+*.sqlite
+share
+lib
+bin
+include
+storage

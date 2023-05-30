@@ -1,7 +1,6 @@
 import asyncio
 import sys
 
-from places.extractor import Extractor
 from places.scrap import WebScrap
 from places.places_db import Places
 from places.vector_db import Upserter
@@ -10,7 +9,6 @@ from places.vector_db import Upserter
 async def main(db_path):
     urls = asyncio.Queue()
     pages = asyncio.Queue()
-    vectors = asyncio.Queue()
 
     coros = []
 
@@ -20,11 +18,8 @@ async def main(db_path):
     # Webscrap converts urls into pages
     coros.append(WebScrap(urls, pages).run())
 
-    # Extractor reads from urls and feeds vectors
-    coros.append(Extractor(pages, vectors).run())
-
-    # Upserter reads from vectors and sends to QDrant
-    coros.append(Upserter(vectors).run())
+    # Upserter reads from pages and sends to web api
+    coros.append(Upserter(pages).run())
 
     # let's start everyone
     await asyncio.gather(*coros)

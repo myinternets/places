@@ -5,3 +5,4 @@ txtai
 numpy
 aiohttp
 qdrant-client
+ruff
