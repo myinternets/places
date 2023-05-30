@@ -3,6 +3,7 @@
 install:
 	python3 -m venv .
 	bin/pip install -r requirements.txt
+	bin/python setup.py develop
 
 run-quadrant:
 	docker run --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant
