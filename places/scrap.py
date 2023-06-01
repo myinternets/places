@@ -10,8 +10,10 @@ supported = [
 
 
 class WebScrap:
-    def __init__(self, urls, pages):
+    def __init__(self, urls, pages, source="firefox", cache={}):
         self.urls = urls
+        self.source = source
+        self.cache = cache
         self.pages = pages
         self._tasks = []
 
@@ -30,10 +32,17 @@ class WebScrap:
                         return None
 
                 text = await resp.text()
+                self.cache[url] = "processed"
                 return url, text
         except Exception as e:
             print(f"[scrap] Could not read {url} {e}")
-            return None
+            if self.source == "sessionbuddy":
+                title = self.cache.get(url)
+                self.cache[url] = "unreadable"
+                return url, title
+            else:
+                self.cache[url] = "error"
+                return None
 
     def url_fetched(self, result):
         if result is None:
