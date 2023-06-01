@@ -26,4 +26,5 @@ def query(sentence):
         print()
 
 
-query(sys.argv[-1])
+if __name__ == "__main__":
+    query(sys.argv[-1])

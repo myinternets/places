@@ -13,4 +13,9 @@ setup(
     author_email="tarek@ziade.org",
     include_package_data=True,
     zip_safe=False,
+    entry_points={
+        'console_scripts': [
+            'places = places.cli:main',
+        ],
+    },
 )
