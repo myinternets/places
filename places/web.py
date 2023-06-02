@@ -22,21 +22,12 @@ routes = web.RouteTableDef()
 
 @routes.post("/index")
 async def index_doc(request):
-    loop = asyncio.get_running_loop()
-
     try:
         data = await request.json()
 
-        # CPU-bound
-        task = loop.run_in_executor(
-            request.app.executor, build_vector, data["url"], data["text"]
+        vectors, sentences, summary = await request.app.run_in_executor(
+            build_vector, data["url"], data["text"]
         )
-        await task
-
-        if task.exception() is not None:
-            raise task.exception()
-
-        vectors, sentences, summary = task.result()
         points = []
 
         for vec, sentence in zip(vectors, sentences, strict=True):
@@ -85,19 +76,18 @@ class PlacesApplication(web.Application):
         self.env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")))
         self.client = QdrantClient(host="localhost", port=6333)
         self.executor = ProcessPoolExecutor()
+        self.on_startup.append(self._startup)
+        self.on_cleanup.append(self._cleanup)
 
-    async def on_shutdown(self, app):
+    async def _startup(self, app):
+        self["loop"] = asyncio.get_running_loop()
+
+    async def _cleanup(self, app):
         self.executor.shutdown()
 
     async def query(self, sentence):
         # vectorize the query
-        loop = asyncio.get_running_loop()
-        task = loop.run_in_executor(self.executor, self.model.encode, [sentence])
-        await task
-        if task.exception() is not None:
-            raise task.exception()
-        embedding = task.result()
-
+        embedding = await self.run_in_executor(self.model.encode, [sentence])
         vector = numpy.asfarray(embedding[0])
         vector = list(vector)
         # should move to i-o bound
@@ -121,6 +111,15 @@ class PlacesApplication(web.Application):
         resp.headers["Content-Type"] = "application/json"
         resp.set_status(status)
         return resp
+
+    async def run_in_executor(self, function, *args, **kw):
+        task = self["loop"].run_in_executor(self.executor, function, *args, **kw)
+        await task
+
+        if task.exception() is not None:
+            raise task.exception()
+
+        return task.result()
 
 
 def main():
