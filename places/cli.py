@@ -40,6 +40,6 @@ def run_query(args):
 
 
 def run_web(args):
-    from places.web import run
+    from places.web import main
 
-    run(host="0.0.0.0", port=8080)
+    main()
