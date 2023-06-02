@@ -6,3 +6,4 @@ numpy
 aiohttp
 qdrant-client
 ruff
+aiohttp

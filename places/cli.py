@@ -3,8 +3,10 @@ import argparse
 
 def main():
     # Set up the parser
-    parser = argparse.ArgumentParser(description="Semantic Search on your Browser History.")
-    subparsers = parser.add_subparsers(help='sub-command help')
+    parser = argparse.ArgumentParser(
+        description="Semantic Search on your Browser History."
+    )
+    subparsers = parser.add_subparsers(help="sub-command help")
 
     index_parser = subparsers.add_parser("index", help="Index your browser history")
     index_parser.add_argument("database")
