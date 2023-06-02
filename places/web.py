@@ -40,14 +40,14 @@ async def index_doc(request):
             )
 
         # TODO IO-bound, should be done in an async call (qdrant_python supports this)
-        return request.app.json_resp(
+        return await request.app.json_resp(
             request.app.client.upsert(
                 collection_name=COLLECTION_NAME,
                 points=points,
             ).json()
         )
     except Exception as e:
-        return request.app.json_resp({"error": str(e)}, 400)
+        return await request.app.json_resp({"error": str(e)}, 400)
 
 
 @routes.get("/search")
@@ -55,18 +55,18 @@ async def search(request):
     q = request.query["q"]
     hits = await request.app.query(q)
     args = {
-        "args": {"title": "Private Search"},
+        "args": {"title": "My Internets"},
         "description": "Search Your History",
         "hits": hits,
         "query": q,
     }
-    return request.app.html_resp("index.html", **args)
+    return await request.app.html_resp("index.html", **args)
 
 
 @routes.get("/")
 async def index(request):
-    args = {"args": {"title": "Private Search"}, "description": "Search Your History"}
-    return request.app.html_resp("index.html", **args)
+    args = {"args": {"title": "My Internets"}, "description": "Search Your History"}
+    return await request.app.html_resp("index.html", **args)
 
 
 class PlacesApplication(web.Application):
@@ -96,15 +96,19 @@ class PlacesApplication(web.Application):
         )
         return hits
 
-    def html_resp(self, template, status=200, **args):
+    async def get_db_info(self):
+        return self.client.get_collection(collection_name=COLLECTION_NAME)
+
+    async def html_resp(self, template, status=200, **args):
         template = self.env.get_template(template)
+        args["db_info"] = await self.get_db_info()
         content = template.render(**args)
         resp = web.Response(text=content)
         resp.headers["Content-Type"] = "text/html"
         resp.set_status(status)
         return resp
 
-    def json_resp(self, body, status=200):
+    async def json_resp(self, body, status=200):
         if not isinstance(body, str):
             body = json.dumps(body)
         resp = web.Response(text=body)

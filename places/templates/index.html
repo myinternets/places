@@ -19,7 +19,7 @@ pre {
 <div id="summary" class="container" role="document">
   <header role="banner">
     <h1 class="pull-right" style="margin: 0;">
-    <h1 class="text-grey text-center">⚡️ Private Search</h1>
+    <h1 class="text-grey text-center">⚡️ My Internets</h1>
     <div class="clearfix"></div>
   </header>
 
@@ -44,5 +44,11 @@ pre {
 	  <span class="text-italic">{{hit.payload['sentence']}}</span>
       </p>
 	  {% endfor %}
+
+
 </div>
+<footer class="text-grey text-center">
+ <hr>
+Qdrant Vectors: {{db_info['vectors_count']}} | Points: {{db_info['points_count']}}
+</footer>
 {% endblock body %}
