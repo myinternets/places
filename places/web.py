@@ -1,7 +1,9 @@
+import asyncio
 import os
 import json
 from uuid import uuid4
 import logging
+from concurrent.futures import ProcessPoolExecutor
 
 from aiohttp import web
 import numpy
@@ -20,6 +22,7 @@ environment = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates"
 client = QdrantClient(host="localhost", port=6333)
 routes = web.RouteTableDef()
 logging.getLogger("asyncio").setLevel(logging.DEBUG)
+executor = ProcessPoolExecutor()
 
 
 def query(sentence):
@@ -50,11 +53,19 @@ def html_resp(template, status=200, **args):
 
 @routes.post("/index")
 async def index_doc(request):
+    loop = asyncio.get_running_loop()
+
     try:
         data = await request.json()
 
         # CPU-bound
-        vectors, sentences, summary = build_vector(data["url"], data["text"])
+        task = loop.run_in_executor(executor, build_vector, data["url"], data["text"])
+        await task
+
+        if task.exception() is not None:
+            raise task.exception()
+
+        vectors, sentences, summary = task.result()
         points = []
 
         for vec, sentence in zip(vectors, sentences, strict=True):
@@ -66,6 +77,7 @@ async def index_doc(request):
                 )
             )
 
+        # TODO IO-bound, should be done in an async call (qdrant_python supports this)
         return json_resp(
             client.upsert(
                 collection_name=COLLECTION_NAME,
@@ -100,4 +112,7 @@ app.add_routes(routes)
 
 
 if __name__ == "__main__":
-    web.run_app(app, port=8080)
+    try:
+        web.run_app(app, port=8080)
+    finally:
+        executor.shutdown()
