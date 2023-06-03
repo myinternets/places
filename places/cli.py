@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 
 
 def main():
@@ -10,7 +11,7 @@ def main():
 
     index_parser = subparsers.add_parser("index", help="Index your browser history")
     index_parser.add_argument("database")
-    index_parser.set_defaults(func=main)
+    index_parser.set_defaults(func=run_index)
 
     query_parser = subparsers.add_parser("query", help="Query your browser history")
     query_parser.add_argument("query")
@@ -30,7 +31,7 @@ def main():
 def run_index(args):
     from places.index import main
 
-    main(args.database)
+    asyncio.run(main(args.database))
 
 
 def run_query(args):
