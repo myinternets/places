@@ -4,12 +4,14 @@ import json
 from uuid import uuid4
 import logging
 from concurrent.futures import ProcessPoolExecutor
+from collections import OrderedDict
 
 from aiohttp import web
 import numpy
 from jinja2 import Environment, FileSystemLoader
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
+from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
 
 from places.extractor import build_vector
@@ -24,35 +26,53 @@ routes = web.RouteTableDef()
 async def index_doc(request):
     try:
         data = await request.json()
-        vector = await request.app.run_in_executor(
-            build_vector, data["url"], data["text"]
-        )
 
-        vectors = vector['vectors']
-        sentences = vector['sentences']
-        title = vector['title']
-        text = vector['text']
+        v_payload = json.dumps({"url": data["url"], "text": data["text"]})
 
+        try:
+            vector = await request.app.run_in_executor(build_vector, v_payload)
+        except Exception as e:
+            print("Failed to vectorize")
+            return await request.app.json_resp({"error": str(e)}, 400)
+
+        vector = json.loads(vector)
+
+        vectors = vector["vectors"]
+        sentences = vector["sentences"]
+        title = vector["title"]
         points = []
 
-        for vec, sentence in zip(vectors, sentences, strict=True):
-            points.append(
-                PointStruct(
-                    id=str(uuid4()),
-                    vector=list(numpy.asfarray(vec)),
-                    payload={"url": data["url"],
-                             "sentence": sentence,
-                             "title": title},
-                )
+        def create_point(vec, sentence):
+            nonlocal data
+            return PointStruct(
+                id=str(uuid4()),
+                vector=list(numpy.asfarray(vec)),
+                payload={"url": data["url"], "sentence": sentence, "title": title},
             )
 
+        for vec, sentence in zip(vectors, sentences, strict=True):
+            try:
+                point = create_point(vec, sentence)
+            except Exception as e:
+                print("Failed to create a point")
+                return await request.app.json_resp({"error": str(e)}, 400)
+
+            points.append(point)
+
         # TODO IO-bound, should be done in an async call (qdrant_python supports this)
-        return await request.app.json_resp(
-            request.app.client.upsert(
-                collection_name=COLLECTION_NAME,
-                points=points,
-            ).json()
-        )
+        try:
+            res = await request.app.json_resp(
+                request.app.client.upsert(
+                    collection_name=COLLECTION_NAME,
+                    points=points,
+                ).json()
+            )
+        except Exception as e:
+            print("Failed to send points to qdrant")
+            return await request.app.json_resp({"error": str(e)}, 400)
+
+        return res
+
     except Exception as e:
         return await request.app.json_resp({"error": str(e)}, 400)
 
@@ -60,7 +80,23 @@ async def index_doc(request):
 @routes.get("/search")
 async def search(request):
     q = request.query["q"]
-    hits = await request.app.query(q)
+    res = OrderedDict()
+
+    for hit in await request.app.query(q):
+        payload = hit.payload
+        url = payload["url"]
+        title = payload["title"]
+        key = url, title
+        sentence = payload["sentence"]
+
+        if key in res:
+            if sentence not in res[key]:
+                res[key].append(sentence)
+        else:
+            res[key] = [sentence]
+
+    hits = [list(k) + [sentences] for k, sentences in res.items()]
+
     args = {
         "args": {"title": "My Internets"},
         "description": "Search Your History",
@@ -99,9 +135,21 @@ class PlacesApplication(web.Application):
         vector = list(vector)
         # should move to i-o bound
         hits = self.client.search(
-            collection_name=COLLECTION_NAME, query_vector=vector, limit=3
+            collection_name=COLLECTION_NAME, query_vector=vector, limit=10
         )
         return hits
+
+    def init_db(self):
+        try:
+            self.client.get_collection(collection_name=COLLECTION_NAME)
+            return
+        except Exception:
+            self.client.recreate_collection(
+                collection_name=COLLECTION_NAME,
+                vectors_config=models.VectorParams(
+                    size=384, distance=models.Distance.COSINE
+                ),
+            )
 
     async def get_db_info(self):
         return self.client.get_collection(collection_name=COLLECTION_NAME)
@@ -137,6 +185,7 @@ def main():
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
     app = PlacesApplication()
     app.add_routes(routes)
+    app.init_db()
     web.run_app(app, port=8080)
 
 

@@ -37,18 +37,24 @@ pre {
                 </button>
 			</p>
       </form>
-      {% for hit in hits%}
+      {% for url, title, sentences in hits %}
 
-	  <p class="grouped">
-	  <h3>{{loop.index}}. <a href="{{hit.payload['url']}}">{{hit.payload['url']}}</a></h3>
-	  <span class="text-italic">{{hit.payload['sentence']}}</span>
-      </p>
-	  {% endfor %}
-
-
+      <div class="row">
+        <div class="col">
+          <div>
+          <a style="font-size: 140%" href="{{url}}">{{title}}</a>
+          <span class="text-grey text-italic">{{url}}</span>
+          </div>
+          {% for sentence in sentences %}
+          <p class="text-grey text-italic">{{sentence}}</p>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
 </div>
 <footer class="text-grey text-center">
  <hr>
-Qdrant Vectors: {{db_info['vectors_count']}} | Points: {{db_info['points_count']}}
+ Qdrant Vectors: {{db_info['vectors_count']}} | <a
+                                                        href="https://ui.qdrant.tech">Dashboard</a>
 </footer>
 {% endblock body %}

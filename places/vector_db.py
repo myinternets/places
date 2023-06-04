@@ -1,5 +1,7 @@
 import aiohttp
 import functools
+import ujson
+
 from places.utils import task_pool
 
 
@@ -9,16 +11,14 @@ class Upserter:
         self.server = server
 
     async def post_url(self, client, url, text):
-        doc = {"url": url, "text": text}
         try:
+            doc = {"url": url, "text": text}
+
             async with client.post(f"{self.server}/index", json=doc) as resp:
                 res = await resp.json()
                 if resp.status > 299:
                     print(res["error"])
                     return None
-                else:
-                    res["url"] = url
-                    print(f"[scrap] {res}")
         except Exception as e:
             print(f"[scrap] Could not post {url} {e}")
             return None
@@ -26,7 +26,7 @@ class Upserter:
     async def run(self):
         async with task_pool() as tasks:
             async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=15)
+                json_serialize=ujson.dumps, timeout=aiohttp.ClientTimeout(total=15)
             ) as client:
                 while True:
                     res = await self.queue.get()
