@@ -24,10 +24,15 @@ routes = web.RouteTableDef()
 async def index_doc(request):
     try:
         data = await request.json()
-
-        vectors, sentences, summary = await request.app.run_in_executor(
+        vector = await request.app.run_in_executor(
             build_vector, data["url"], data["text"]
         )
+
+        vectors = vector['vectors']
+        sentences = vector['sentences']
+        title = vector['title']
+        text = vector['text']
+
         points = []
 
         for vec, sentence in zip(vectors, sentences, strict=True):
@@ -35,7 +40,9 @@ async def index_doc(request):
                 PointStruct(
                     id=str(uuid4()),
                     vector=list(numpy.asfarray(vec)),
-                    payload={"url": data["url"], "sentence": sentence},
+                    payload={"url": data["url"],
+                             "sentence": sentence,
+                             "title": title},
                 )
             )
 

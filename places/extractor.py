@@ -17,14 +17,19 @@ segmentation = Segmentation(sentences=True)
 
 def bs_parse(content="", parser="html.parser"):
     soup = BeautifulSoup(content, parser)
-    return soup.get_text()
+    return soup.title.string, soup.get_text()
 
 
 def build_vector(url, text):
     cp = current_process()
     print(f"[extractor][{cp.pid}] working on {url}")
-    text = bs_parse(text)
+    text, title = bs_parse(text)
     # _summary = summary(text)
     sentences = segmentation(text)
     vectors = model.encode(sentences)
-    return vectors, sentences, text
+    return {
+        'vectors': vectors,
+        'sentences': sentences,
+        'text': text,
+        'title': title
+    }
