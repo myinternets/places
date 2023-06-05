@@ -26,6 +26,9 @@ isort = "^5.12.0"
 black = "^23.3.0"
 nox = "^2023.4.22"
 
+[tool.poetry.scripts]
+places = 'places.cli:main'
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

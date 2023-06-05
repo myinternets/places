@@ -22,3 +22,5 @@ def test(session: nox.Session) -> None:
     # Don't install all dev deps, only what's needed for the tests
     session.install("pytest")
     session.run("pytest", SRC)
+
+    session.run("places", "--help", silent=True)
