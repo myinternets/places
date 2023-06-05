@@ -1,5 +1,5 @@
-import functools
 import asyncio
+import functools
 from contextlib import asynccontextmanager
 
 

@@ -26,3 +26,7 @@ lint:
 test:
 	bin/pytest -sv places/tests
 
+autoformat:
+	bin/isort places
+	bin/black places
+

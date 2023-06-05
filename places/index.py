@@ -1,9 +1,9 @@
 import asyncio
 import sys
 
-from places.scrap import WebScrap
 from places.places_db import Places
-from places.vector_db import Upserter
+from places.scrap import WebScrap
+from places.vectors import Upserter
 
 
 async def main(db_path):

@@ -1,5 +1,7 @@
-import aiohttp
 import functools
+
+import aiohttp
+
 from places.utils import task_pool
 
 supported = [

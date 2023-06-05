@@ -9,3 +9,5 @@ ruff
 aiohttp
 ujson
 pytest
+isort
+black

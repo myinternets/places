@@ -1,21 +1,20 @@
 import asyncio
-import os
-import json
 import hashlib
+import json
 import logging
-from concurrent.futures import ProcessPoolExecutor
+import os
 from collections import OrderedDict
+from concurrent.futures import ProcessPoolExecutor
 
-from aiohttp import web
 import numpy
+from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 from qdrant_client import QdrantClient
-from qdrant_client.models import PointStruct
 from qdrant_client.http import models
+from qdrant_client.models import PointStruct
 from sentence_transformers import SentenceTransformer
 
-from places.extractor import build_vector
-
+from places.vectors import build_vector
 
 HERE = os.path.dirname(__file__)
 COLLECTION_NAME = "pages"
