@@ -1,7 +1,7 @@
 import asyncio
 import os
 import json
-from uuid import uuid4
+import hashlib
 import logging
 from concurrent.futures import ProcessPoolExecutor
 from collections import OrderedDict
@@ -22,12 +22,23 @@ COLLECTION_NAME = "pages"
 routes = web.RouteTableDef()
 
 
+def create_point(index, url, title, vec, sentence):
+    point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
+
+    return PointStruct(
+        id=point_id,
+        vector=list(numpy.asfarray(vec)),
+        payload={"url": url, "sentence": sentence, "title": title},
+    )
+
+
 @routes.post("/index")
 async def index_doc(request):
     try:
         data = await request.json()
+        url = data["url"]
 
-        v_payload = json.dumps({"url": data["url"], "text": data["text"]})
+        v_payload = json.dumps({"url": url, "text": data["text"]})
 
         try:
             vector = await request.app.run_in_executor(build_vector, v_payload)
@@ -42,17 +53,9 @@ async def index_doc(request):
         title = vector["title"]
         points = []
 
-        def create_point(vec, sentence):
-            nonlocal data
-            return PointStruct(
-                id=str(uuid4()),
-                vector=list(numpy.asfarray(vec)),
-                payload={"url": data["url"], "sentence": sentence, "title": title},
-            )
-
-        for vec, sentence in zip(vectors, sentences, strict=True):
+        for idx, (vec, sentence) in enumerate(zip(vectors, sentences, strict=True)):
             try:
-                point = create_point(vec, sentence)
+                point = create_point(idx, url, title, vec, sentence)
             except Exception as e:
                 print("Failed to create a point")
                 return await request.app.json_resp({"error": str(e)}, 400)

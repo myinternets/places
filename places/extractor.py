@@ -67,7 +67,7 @@ def build_vector(data):
 
     try:
         vectors = model.encode(sentences)
-    except Exception as e :
+    except Exception as e:
         msg = f"Could not encode with the model {url}"
         print(msg)
         raise Exception(msg) from e
