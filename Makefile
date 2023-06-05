@@ -2,8 +2,9 @@
 
 install:
 	python3 -m venv .
-	bin/pip install -r requirements.txt
-	bin/python setup.py develop
+	bin/pip install poetry
+	bin/poetry config virtualenvs.create false --local
+	bin/poetry install
 
 run-quadrant:
 	docker run --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant
