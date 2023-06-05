@@ -23,3 +23,6 @@ run-docker:
 lint:
 	bin/ruff places
 
+test:
+	bin/pytest -sv places/tests
+

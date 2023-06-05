@@ -17,6 +17,23 @@ segmentation = Segmentation(sentences=True)
 
 
 def build_vector(data):
+    """Vectorizes a page.
+
+    1. Extracts the title and text using BeautifulSoup
+    2. Segmentizes the text
+    3. Create embeddings for each sentences using SentenceTransformer
+
+    Accepts a JSON-encoded mapping containing the url and text.
+    The data is passed as a string so it can be pickled.
+
+    Returns a JSON-encoded mapping containing:
+
+    - vectors: a list of vectors
+    - sentences: a list of sentences
+    - title: the title of the page
+
+    """
+
     data = json.loads(data)
     url = data["url"]
     text = data["text"]
