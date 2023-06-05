@@ -1,6 +1,5 @@
 sentence_transformers
 bs4
-bottle
 txtai
 numpy
 aiohttp
