@@ -29,4 +29,3 @@ test:
 autoformat:
 	bin/isort places
 	bin/black places
-
