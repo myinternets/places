@@ -1,5 +1,13 @@
 .PHONY: clean run-quadrant index web install build-app run-app
 
+install-cpu:
+	python3 generate_pytorch_dep_urls.py
+	python3 -m venv .venv
+	.venv/bin/pip install -r torch-requirements.txt
+	.venv/bin/pip install poetry
+	.venv/bin/poetry config virtualenvs.create false --local
+	.venv/bin/poetry install
+
 install:
 	python3 -m venv .venv
 	.venv/bin/pip install poetry
@@ -41,11 +49,6 @@ clean:
 	rm -rf .nox
 	rm -rf .mypy_cache
 	rm -rf .cache
-	rm -rf .venv
-	rm -rf lib
-	rm -rf lib64
-	rm -rf share
-	rm -rf bin
-	rm -rf include
 	rm -rf poetry.lock
+	rm -rf ~/.cache/places/
 	docker rm -f places-app qdrant 2>/dev/null || docker-compose kill && docker-compose rm -f 2>/dev/null || true

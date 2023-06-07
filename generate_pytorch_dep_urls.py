@@ -52,8 +52,8 @@ def main(pip_requirements_path="torch-requirements.txt"):
         f.write('\n')
     print(f"Python: {python_major}.{python_minor}\nArch: {arch}\nOS: {os_name}")
     print(f"\n..generated [{pip_requirements_path}]")
-    print("\nProceed to run the following now:\n")
-    print(f"pip install --no-cache-dir -r {pip_requirements_path}")
+    # print("\nProceed to run the following now:\n")
+    # print(f"pip install --no-cache-dir -r {pip_requirements_path}")
 
 if __name__ == "__main__":
     pip_gen_file = "torch-requirements.txt"
