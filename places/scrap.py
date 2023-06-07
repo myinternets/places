@@ -10,11 +10,11 @@ supported = [
 
 
 class WebScrap:
-    def __init__(self, urls, pages, source="firefox", cache={}):
+    def __init__(self, urls, pages, source="firefox", cache=None):
         self.urls = urls
-        self.source = source
-        self.cache = cache
         self.pages = pages
+        self.source = source
+        self.cache = cache or {}
         self._tasks = []
 
     async def get_url(self, client, url):

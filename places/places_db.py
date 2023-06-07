@@ -1,11 +1,10 @@
 import json
 import sqlite3
 from urllib.parse import urlparse
-from diskcache import Cache
 from utils import remove_bom
 
 # TODO: replace this with a sophisticated list
-# (regex, blacklists, patterns etc.)
+# (regex, blocklists, patterns etc.)
 skip = (
     "github.com",
     "google.com",
