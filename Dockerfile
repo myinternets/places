@@ -24,13 +24,13 @@ RUN --mount=type=cache,target=/home/.cache/pypoetry/cache \
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/share
 
-RUN pip install --no-cache-dir supervisor
+# RUN pip install --no-cache-dir supervisor
 
-RUN apt-get update && apt-get install -y netcat
+# RUN apt-get update && apt-get install -y netcat
 
 # copy last so any changes to the code don't invalidate the cache
 # COPY docker /app/docker
-COPY docker/supervisord.conf /app/docker/supervisord.conf
+# COPY docker/supervisord.conf /app/docker/supervisord.conf
 
 COPY . /app
 

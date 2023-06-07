@@ -20,7 +20,8 @@ build-app:
 	# docker build --progress=plain -t tarek/places . 2>&1 > /tmp/build.log
 
 run-app:
-	docker run --name places-app -d --rm -p 8080:8080 -v storage:/app/docker/storage tarek/places
+	docker compose up -d
+	# docker run --name places-app -d --rm -p 8080:8080 -v storage:/app/docker/storage tarek/places
 	# docker run --name places-app -d --rm -p 6333:6333 -p 8080:8080 -v storage:/app/docker/storage tarek/places
 
 lint:
@@ -47,4 +48,4 @@ clean:
 	rm -rf bin
 	rm -rf include
 	rm -rf poetry.lock
-	docker rm -f places-app qdrant 2>/dev/null || true
+	docker rm -f places-app qdrant 2>/dev/null || docker-compose kill && docker-compose rm -f 2>/dev/null || true
