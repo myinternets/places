@@ -1,7 +1,7 @@
 import json
 import sqlite3
 from urllib.parse import urlparse
-from utils import remove_bom
+from places.utils import remove_bom
 
 # TODO: replace this with a sophisticated list
 # (regex, blocklists, patterns etc.)
