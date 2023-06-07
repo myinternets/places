@@ -10,5 +10,5 @@ set -e
 # Start supervisord
 # exec supervisord -c /app/docker/supervisord.conf
 
-pushd /app
-/usr/local/bin/python /app/places/web.py
+# pushd /app
+python /app/places/web.py

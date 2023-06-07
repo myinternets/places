@@ -188,6 +188,7 @@ def main():
     app = PlacesApplication()
     app.add_routes(routes)
     app.init_db()
+    print("Starting semantic bookmarks server...")
     web.run_app(app, port=8080)
 
 
