@@ -3,7 +3,6 @@ import json
 from multiprocessing import current_process
 
 import aiohttp
-import nltk
 import ujson
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
