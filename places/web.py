@@ -119,7 +119,7 @@ class PlacesApplication(web.Application):
         super().__init__(*args, **kw)
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")))
-        self.client = QdrantClient(host="localhost", port=6333)
+        self.client = QdrantClient(host="qdrant", port=6333)
         self.executor = ProcessPoolExecutor()
         self.on_startup.append(self._startup)
         self.on_cleanup.append(self._cleanup)

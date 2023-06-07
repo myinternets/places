@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.2.2
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - storage:/qdrant/storage
+    networks:
+      - myinternets
+    restart: always
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:6333"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  places:
+    image: tarek/places
+    container_name: places
+    ports:
+      - "8080:8080"
+    volumes:
+      - storage:/app/docker/storage
+    depends_on:
+      - qdrant
+      # qdrant:
+      #   condition: service_healthy
+    networks:
+      - myinternets
+    restart: always
+
+networks:
+  myinternets:
+
+volumes:
+  storage:
