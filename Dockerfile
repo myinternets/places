@@ -1,5 +1,21 @@
 FROM python:3.11-slim-buster
 
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
+
+# make dir /app and copy requirements.txt and docker folder
 RUN mkdir -p /app
 WORKDIR /app
 
@@ -24,7 +40,7 @@ COPY poetry.toml pyproject.toml /app/
 # install Python dependencies
 RUN --mount=type=cache,target=/home/.cache/pypoetry/cache \
     --mount=type=cache,target=/home/.cache/pypoetry/artifacts \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install --only main --no-interaction --no-ansi
 
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/share
