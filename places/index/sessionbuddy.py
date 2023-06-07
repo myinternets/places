@@ -60,7 +60,7 @@ class SessionBuddy:
                 for tab in tabs:
                     url = tab["url"]
                     title = tab["title"]
-                    if self.should_skip(url):
+                    if should_skip(url, cache=self.cache):
                         skipped_count += 1
                         continue
                     self.cache[url] = title
@@ -73,11 +73,3 @@ class SessionBuddy:
                 f"[sessionbuddy] Collected {url_count} urls. Skipped {skipped_count} urls"
             )
         await self.queue.put("END")
-
-    def should_skip(self, url):
-        if should_skip(url):
-            return True
-        if url in self.cache:
-            if self.cache[url] != "error":
-                return True
-        return False

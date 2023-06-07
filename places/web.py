@@ -17,7 +17,6 @@ from places.webdb import Pages
 
 
 HERE = os.path.dirname(__file__)
-COLLECTION_NAME = "pages"
 routes = web.RouteTableDef()
 
 
