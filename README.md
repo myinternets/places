@@ -8,7 +8,7 @@ Semantic Search on your Browser History
 To run, build the docker image containing Qdrant and the app, then run it
 
 ```
-make install build-docker run-docker
+make install build-app run-app
 ```
 
 Then index the Firefox data using the `index.py` script and the path

@@ -4,7 +4,7 @@ import numpy
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
 
-client = QdrantClient(host="localhost", port=6333)
+client = QdrantClient(host="qdrant", port=6333)
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 

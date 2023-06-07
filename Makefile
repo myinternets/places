@@ -1,32 +1,54 @@
-.PHONY: run-quadrant index web install build-docker run-docker
+.PHONY: clean run-quadrant index web install build-app run-app
+
+install-cpu:
+	python3 generate_pytorch_dep_urls.py
+	python3 -m venv .venv
+	.venv/bin/pip install -r torch-requirements.txt
+	.venv/bin/pip install poetry
+	.venv/bin/poetry config virtualenvs.create false --local
+	.venv/bin/poetry install
 
 install:
-	python3 -m venv .
-	bin/pip install poetry
-	bin/poetry config virtualenvs.create false --local
-	bin/poetry install
+	python3 -m venv .venv
+	.venv/bin/pip install poetry
+	.venv/bin/poetry config virtualenvs.create false --local
+	.venv/bin/poetry install
 
 run-quadrant:
-	docker run --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant
+	docker run --name qdrant -d --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant:v1.2.2
 
 index:
-	bin/python places/index.py places.sqlite
+	.venv/bin/python places/index.py places.sqlite
 
 web:
-	bin/python places/web.py
+	.venv/bin/python places/web.py
 
-build-docker:
+build-app:
 	docker build -t tarek/places .
+	# docker build --progress=plain -t tarek/places . 2>&1 > /tmp/build.log
 
-run-docker:
-	docker run -it --rm -p 6333:6333 -p 8080:8080 -v storage:/app/docker/storage tarek/places
+run-app:
+	docker compose up -d
+	# docker run --name places-app -d --rm -p 8080:8080 -v storage:/app/docker/storage tarek/places
+	# docker run --name places-app -d --rm -p 6333:6333 -p 8080:8080 -v storage:/app/docker/storage tarek/places
 
 lint:
-	bin/ruff places
+	.venv/bin/ruff places
 
 test:
-	bin/pytest -sv places/tests
+	.venv/bin/pytest -sv places/tests
 
 autoformat:
-	bin/isort places
-	bin/black places
+	.venv/bin/isort places
+	.venv/bin/black places
+
+clean:
+	rm -rf places.egg-info
+	rm -rf places/__pycache__
+	rm -rf .pytest_cache
+	rm -rf .nox
+	rm -rf .mypy_cache
+	rm -rf .cache
+	rm -rf poetry.lock
+	rm -rf ~/.cache/places/
+	docker rm -f places-app qdrant 2>/dev/null || docker-compose kill && docker-compose rm -f 2>/dev/null || true
