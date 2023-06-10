@@ -20,6 +20,7 @@ services:
   places:
     image: tarek/places
     container_name: places
+    shm_size: '2gb'
     ports:
       - "8080:8080"
     volumes:

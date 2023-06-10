@@ -1,7 +1,7 @@
 .PHONY: clean run-quadrant index web install build-app run-app
 
 install-cpu:
-	python3 generate_pytorch_dep_urls.py
+	python3 scripts/generate_pytorch_dep_urls.py
 	python3 -m venv .venv
 	.venv/bin/pip install -r torch-requirements.txt
 	.venv/bin/pip install poetry
@@ -29,8 +29,8 @@ build-app:
 
 run-app:
 	docker compose up -d
-	# docker run --name places-app -d --rm -p 8080:8080 -v storage:/app/docker/storage tarek/places
-	# docker run --name places-app -d --rm -p 6333:6333 -p 8080:8080 -v storage:/app/docker/storage tarek/places
+	# docker run --name places -d --rm -p 8080:8080 -v storage:/app/docker/storage tarek/places
+	# docker run --name places -d --rm -p 6333:6333 -p 8080:8080 -v storage:/app/docker/storage tarek/places
 
 lint:
 	.venv/bin/ruff places
@@ -51,4 +51,6 @@ clean:
 	rm -rf .cache
 	rm -rf poetry.lock
 	rm -rf ~/.cache/places/
-	docker rm -f places-app qdrant 2>/dev/null || docker-compose kill && docker-compose rm -f 2>/dev/null || true
+	docker compose kill
+	docker compose rm -f 2>/dev/null || true
+	# docker rm -f places qdrant 2>/dev/null
