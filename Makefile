@@ -21,7 +21,7 @@ index:
 	.venv/bin/python places/index.py places.sqlite
 
 web:
-	.venv/bin/python places/web.py
+	.venv/bin/places web
 
 build-app:
 	docker build -t tarek/places .

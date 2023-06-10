@@ -45,6 +45,7 @@ async def task_pool(max_tasks=10, cb=None):
     finally:
         await tasks.join()
 
+
 def remove_bom(file_path):
     """
     Session buddy exports have Byte Order Mark (BOMs)
@@ -52,17 +53,17 @@ def remove_bom(file_path):
     such BOMs which renders encoding="utf-8-sig" useless.
     This method removes them recursively.
     """
-    with open(file_path, 'rb') as f:
+    with open(file_path, "rb") as f:
         content = f.read()
-    bom = b'\xef\xbb\xbf'
+    bom = b"\xef\xbb\xbf"
     removed = False
     # current exports have duplicate BOMs
     while content.startswith(bom):
-        content = content[len(bom):]
+        content = content[len(bom) :]
         removed = True
     if removed:
         print(f"...removed BOM from {file_path}")
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             f.write(content)
     else:
         print(f"...no BOM found in {file_path}")

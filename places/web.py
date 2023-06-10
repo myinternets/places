@@ -116,10 +116,13 @@ async def index(request):
 
 class PlacesApplication(web.Application):
     def __init__(self, *args, **kw):
+        self.qdrant_host = kw.pop("qdrant_host", "localhost")
+        self.qdrant_port = kw.pop("qdrant_port", 6333)
+
         super().__init__(*args, **kw)
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")))
-        self.client = QdrantClient(host="qdrant", port=6333)
+        self.client = QdrantClient(host=self.qdrant_host, port=self.qdrant_port)
         self.executor = ProcessPoolExecutor()
         self.on_startup.append(self._startup)
         self.on_cleanup.append(self._cleanup)
@@ -183,14 +186,10 @@ class PlacesApplication(web.Application):
         return task.result()
 
 
-def main():
+def main(args):
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
-    app = PlacesApplication()
+    app = PlacesApplication(**args)
     app.add_routes(routes)
     app.init_db()
     print("Starting semantic bookmarks server...")
     web.run_app(app, port=8080)
-
-
-if __name__ == "__main__":
-    main()

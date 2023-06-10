@@ -7,7 +7,8 @@ from places.vectors import Upserter
 from places.scrap import WebScrap
 from places.places_db import Places, SessionBuddy
 
-CACHE_DIR = os.path.join(os.path.expanduser('~/.cache'), 'places')
+CACHE_DIR = os.path.join(os.path.expanduser("~/.cache"), "places")
+
 
 def initiate_cache(source):
     """

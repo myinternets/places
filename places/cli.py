@@ -19,11 +19,14 @@ def main():
 
     web_parser = subparsers.add_parser("web", help="Run the web server")
     web_parser.set_defaults(func=run_web)
-
+    web_parser.add_argument("--qdrant-host", type=str, default="localhost")
+    web_parser.add_argument("--qdrant-port", type=int, default=6333)
     args = parser.parse_args()
 
     if hasattr(args, "func"):
-        args.func(args)
+        args = vars(args)
+        func = args.pop("func")
+        func(args)
     else:
         parser.print_help()
 
@@ -43,4 +46,4 @@ def run_query(args):
 def run_web(args):
     from places.web import main
 
-    main()
+    main(args)
