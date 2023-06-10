@@ -21,6 +21,7 @@ def main():
     web_parser.set_defaults(func=run_web)
     web_parser.add_argument("--qdrant-host", type=str, default="localhost")
     web_parser.add_argument("--qdrant-port", type=int, default=6333)
+
     args = parser.parse_args()
 
     if hasattr(args, "func"):
