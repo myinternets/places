@@ -36,7 +36,6 @@ async def index_doc(request):
     try:
         data = await request.json()
         url = data["url"]
-
         v_payload = json.dumps({"url": url, "text": data["text"]})
 
         try:
