@@ -188,12 +188,7 @@ class PlacesApplication(web.Application):
 
 def main(args):
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
-<<<<<<< HEAD
     app = PlacesApplication(**args)
-=======
-    # XXX convert args into kw
-    app = PlacesApplication()
->>>>>>> 189de3a (savepoint)
     app.add_routes(routes)
     app.init_db()
     print("Starting semantic bookmarks server...")
