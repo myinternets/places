@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from urllib.parse import urlparse
+
 from places.utils import remove_bom
 
 # TODO: replace this with a sophisticated list
@@ -52,7 +53,7 @@ class SessionBuddy:
     async def run(self):
         session_data = {}
         try:
-            with open(self.db, 'r', encoding='utf-8-sig') as f:
+            with open(self.db, "r", encoding="utf-8-sig") as f:
                 session_data = json.load(f)
         except FileNotFoundError:
             print("File not found")
@@ -65,15 +66,15 @@ class SessionBuddy:
 
         if session_data:
             # TODO: process all saved sessions. [0] only gets "current".
-            browser_windows = session_data["sessions"][0]['windows']
+            browser_windows = session_data["sessions"][0]["windows"]
 
             url_count = 0
             skipped_count = 0
             for window in browser_windows:
-                tabs = window['tabs']
+                tabs = window["tabs"]
                 for tab in tabs:
-                    url = tab['url']
-                    title = tab['title']
+                    url = tab["url"]
+                    title = tab["title"]
                     if self.should_skip(url):
                         skipped_count += 1
                         continue
@@ -83,7 +84,9 @@ class SessionBuddy:
                         url_count += 1
                         await self.queue.put(url)
 
-            print(f"[sessionbuddy] Collected {url_count} urls. Skipped {skipped_count} urls")
+            print(
+                f"[sessionbuddy] Collected {url_count} urls. Skipped {skipped_count} urls"
+            )
         await self.queue.put("END")
 
     def should_skip(self, url):

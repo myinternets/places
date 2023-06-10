@@ -11,4 +11,4 @@ set -e
 # exec supervisord -c /app/docker/supervisord.conf
 
 # pushd /app
-python /app/places/web.py
+places web --qdrant-host qdrant
