@@ -1,10 +1,17 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ "main" ]
+  # push:
+  #   branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    # ignore workflows path
+    paths-ignore:
+      - '.github/**'
+    # paths:
+    #   - 'docker/**'
+    #   - 'places/**'
+    #   - 'scripts/**'
 
 jobs:
 
