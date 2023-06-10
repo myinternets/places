@@ -1,11 +1,12 @@
+import asyncio
 import os
 import sys
-import asyncio
+
 from diskcache import Cache
 
-from places.vectors import Upserter
-from places.scrap import WebScrap
 from places.places_db import Places, SessionBuddy
+from places.scrap import WebScrap
+from places.vectors import Upserter
 
 CACHE_DIR = os.path.join(os.path.expanduser("~/.cache"), "places")
 

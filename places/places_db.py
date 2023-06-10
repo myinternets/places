@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from urllib.parse import urlparse
+
 from places.utils import remove_bom
 
 # TODO: replace this with a sophisticated list
