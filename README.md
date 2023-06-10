@@ -9,6 +9,12 @@
 
 **Experimental**
 
+
+[![Ruff](https://github.com/myinternets/places/actions/workflows/ruff.yml/badge.svg?event=push)](https://github.com/myinternets/places/actions/workflows/ruff.yml)
+
+[![Docker Image CI](https://github.com/myinternets/places/actions/workflows/docker-image.yml/badge.svg)](https://github.com/myinternets/places/actions/workflows/docker-image.yml)
+
+
 Places
 ------
 
