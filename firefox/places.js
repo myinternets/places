@@ -1,6 +1,6 @@
 
 
-if(document.readyState !== 'complete') {
+if (document.readyState !== 'complete') {
     window.addEventListener('load',afterWindowLoaded);
 } else {
     afterWindowLoaded();
@@ -13,15 +13,10 @@ function afterWindowLoaded() {
 }
 
 
-var service= browser.runtime.connect({name:"port-from-cs"});
-
-service.postMessage({location: document.URL});
-
-
 async function postJSON(data) {
   try {
     const response = await fetch("http://localhost:8080/index", {
-      method: "POST", // or 'PUT'
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
