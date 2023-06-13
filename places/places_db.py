@@ -19,6 +19,13 @@ skip = (
 )
 
 
+def should_skip(url):
+    for skipped in skip:
+        if skipped in url:
+            return True
+    return False
+
+
 class SessionBuddy:
     """
     SessionBuddy class to read URLs from a Session Buddy JSON export.
@@ -90,9 +97,8 @@ class SessionBuddy:
         await self.queue.put("END")
 
     def should_skip(self, url):
-        for skipped in skip:
-            if skipped in url:
-                return True
+        if should_skip(url):
+            return True
         if url in self.cache:
             if self.cache[url] != "error":
                 return True
@@ -150,9 +156,8 @@ class Places:
         await self.queue.put("END")
 
     def to_skip(self, url):
-        for skipped in skip:
-            if skipped in url:
-                return True
+        if should_skip(url):
+            return True
         if url in self.cache:
             if self.cache[url] != "error" and self.cache[url] != "unreadable":
                 return True

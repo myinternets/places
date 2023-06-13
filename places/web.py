@@ -16,6 +16,10 @@ from sentence_transformers import SentenceTransformer
 
 from places.vectors import build_vector
 
+# XXX will be moved by other PRs
+from places.places_db import should_skip
+
+
 HERE = os.path.dirname(__file__)
 COLLECTION_NAME = "pages"
 routes = web.RouteTableDef()
@@ -36,16 +40,23 @@ async def index_doc(request):
     try:
         data = await request.json()
         url = data["url"]
+        if should_skip(url):
+            print(f"Skipping {url}")
+            return await request.app.json_resp({"result": "skipped domain"}, 200)
 
         v_payload = json.dumps({"url": url, "text": data["text"]})
 
         try:
-            vector = await request.app.run_in_executor(build_vector, v_payload)
+            resp = await request.app.run_in_executor(build_vector, v_payload)
         except Exception as e:
             print("Failed to vectorize")
             return await request.app.json_resp({"error": str(e)}, 400)
 
-        vector = json.loads(vector)
+        if "error" in resp:
+            print("Failed to vectorize")
+            return await request.app.json_resp(resp, 400)
+
+        vector = json.loads(resp)
 
         vectors = vector["vectors"]
         sentences = vector["sentences"]
@@ -63,12 +74,13 @@ async def index_doc(request):
 
         # TODO IO-bound, should be done in an async call (qdrant_python supports this)
         try:
-            res = await request.app.json_resp(
-                request.app.client.upsert(
-                    collection_name=COLLECTION_NAME,
-                    points=points,
-                ).json()
-            )
+            qdrant_resp = request.app.client.upsert(
+                collection_name=COLLECTION_NAME,
+                points=points,
+            ).json()
+            print(qdrant_resp)
+
+            res = await request.app.json_resp(qdrant_resp)
         except Exception as e:
             print("Failed to send points to qdrant")
             return await request.app.json_resp({"error": str(e)}, 400)
