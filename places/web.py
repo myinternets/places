@@ -5,6 +5,7 @@ import logging
 import os
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor
+import traceback as tb
 
 import numpy
 from aiohttp import web
@@ -23,6 +24,13 @@ from places.places_db import should_skip
 HERE = os.path.dirname(__file__)
 COLLECTION_NAME = "pages"
 routes = web.RouteTableDef()
+
+
+def error_to_json(e):
+    return {
+        "error": repr(e),
+        "tb": "".join(tb.format_exception(None, e, e.__traceback__)),
+    }
 
 
 def create_point(index, url, title, vec, sentence):
@@ -88,7 +96,7 @@ async def index_doc(request):
         return res
 
     except Exception as e:
-        return await request.app.json_resp({"error": str(e)}, 400)
+        return await request.app.json_resp(error_to_json(e), 400)
 
 
 @routes.get("/search")
@@ -200,7 +208,7 @@ class PlacesApplication(web.Application):
 
 def main(args):
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
-    app = PlacesApplication(**args)
+    app = PlacesApplication(client_max_size=None, **args)
     app.add_routes(routes)
     app.init_db()
     print("Starting semantic bookmarks server...")

@@ -1,6 +1,7 @@
 import functools
 import json
 from multiprocessing import current_process
+import traceback as tb
 
 import aiohttp
 import ujson
@@ -23,7 +24,12 @@ def json_error(func):
         try:
             return func(*args, **kw)
         except Exception as e:
-            return json.dumps({"error": repr(e)})
+            return json.dumps(
+                {
+                    "error": repr(e),
+                    "tb": "".join(tb.format_exception(None, e, e.__traceback__)),
+                }
+            )
 
     return _json_error
 
