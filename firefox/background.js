@@ -41,3 +41,12 @@ browser.webRequest.onCompleted.addListener(
   ['responseHeaders']
 );
 
+
+function openPage() {
+  browser.tabs.create({
+    url: "http://localhost:8080",
+  });
+}
+
+browser.browserAction.onClicked.addListener(openPage);
+
