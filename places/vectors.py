@@ -12,9 +12,7 @@ from txtai.pipeline.data import Segmentation
 
 from places.utils import task_pool
 
-# nltk.download("punkt")
 model = SentenceTransformer("all-MiniLM-L6-v2")
-# this line segfaults in Docker for some reason
 summary = Summary("sshleifer/distilbart-cnn-12-6")
 segmentation = Segmentation(sentences=True)
 
