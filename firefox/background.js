@@ -17,10 +17,10 @@ async function postJSON(data) {
 
 function handleMessage(request, sender, sendResponse) {
   if (request.url in statusCodes) {
-      var code = statusCodes[request.url];
-      if (code < 300) {
-        postJSON(request);
-      }
+    var code = statusCodes[request.url];
+    if (code < 300) {
+      postJSON(request);
+    }
   }
 }
 
@@ -29,18 +29,15 @@ browser.runtime.onMessage.addListener(handleMessage);
 var statusCodes = {};
 
 browser.webRequest.onCompleted.addListener(
-
-  e => {
-
-    if (e.tabId === -1 || e.type !== 'main_frame') {
+  (e) => {
+    if (e.tabId === -1 || e.type !== "main_frame") {
       return;
     }
     statusCodes[e.url] = e.statusCode;
   },
-  { urls: ['<all_urls>'] , types: ["main_frame"]},
-  ['responseHeaders']
+  { urls: ["<all_urls>"], types: ["main_frame"] },
+  ["responseHeaders"]
 );
-
 
 function openPage() {
   browser.tabs.create({
@@ -49,4 +46,3 @@ function openPage() {
 }
 
 browser.browserAction.onClicked.addListener(openPage);
-

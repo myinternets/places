@@ -1,11 +1,9 @@
 {
-
   "manifest_version": 2,
   "name": "Places",
   "version": "0.0.1",
 
   "description": "Search Your Browser History.",
-
 
   "permissions": [
     "storage",
@@ -35,4 +33,3 @@
     }
   }
 }
-

@@ -1,12 +1,10 @@
-
-
-if (document.readyState !== 'complete') {
-    window.addEventListener('load',afterWindowLoaded);
+if (document.readyState !== "complete") {
+  window.addEventListener("load", afterWindowLoaded);
 } else {
-    afterWindowLoaded();
+  afterWindowLoaded();
 }
 
 function afterWindowLoaded() {
-  var page = '<html>' + document.documentElement.innerHTML + '</html>';
-  browser.runtime.sendMessage({ url: window.location.href, text: page});
+  var page = "<html>" + document.documentElement.innerHTML + "</html>";
+  browser.runtime.sendMessage({ url: window.location.href, text: page });
 }
