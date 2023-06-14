@@ -1,24 +1,40 @@
 import functools
 import json
 from multiprocessing import current_process
+import traceback as tb
 
 import aiohttp
 import ujson
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 
-# from txtai.pipeline import Summary
+from txtai.pipeline import Summary
 from txtai.pipeline.data import Segmentation
 
 from places.utils import task_pool
 
-# nltk.download("punkt")
 model = SentenceTransformer("all-MiniLM-L6-v2")
-# this line segfaults in Docker for some reason
-# summary = Summary("sshleifer/distilbart-cnn-12-6")
+summary = Summary("sshleifer/distilbart-cnn-12-6")
 segmentation = Segmentation(sentences=True)
 
 
+def json_error(func):
+    @functools.wraps(func)
+    def _json_error(*args, **kw):
+        try:
+            return func(*args, **kw)
+        except Exception as e:
+            return json.dumps(
+                {
+                    "error": repr(e),
+                    "tb": "".join(tb.format_exception(None, e, e.__traceback__)),
+                }
+            )
+
+    return _json_error
+
+
+@json_error
 def build_vector(data):
     """Vectorizes a page.
 
@@ -54,26 +70,13 @@ def build_vector(data):
     except Exception:
         title = ""
 
-    try:
-        text = soup.get_text()
-    except Exception as e:
-        print(f"Could not extract the content of {url} - bs4 error")
-        raise Exception(f"Could not extract the content of {url}") from e
+    text = soup.get_text()
 
-    # _summary = summary(text)
-    try:
-        sentences = segmentation(text)
-    except Exception as e:
-        msg = f"Could not segmentize {url}"
-        print(msg)
-        raise Exception(msg) from e
+    if len(text) > 1024:
+        text = summary(text)
 
-    try:
-        vectors = model.encode(sentences)
-    except Exception as e:
-        msg = f"Could not encode with the model {url}"
-        print(msg)
-        raise Exception(msg) from e
+    sentences = segmentation(text)
+    vectors = model.encode(sentences)
 
     return json.dumps(
         {"vectors": vectors.tolist(), "sentences": sentences, "title": title}
