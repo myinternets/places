@@ -30,14 +30,18 @@ def get_db(**kw):
     return LocalDB(**kw)
 
 
+# could use https://github.com/spotify/annoy instead
 class LocalDB:
     def __init__(self, **kw):
-        self.path = kw["path"]
+        self.path = kw["vectra_path"]
         self._index = LocalIndex(self.path)
         self._collection_name = "pages"
 
-    async def search(self, collection_name, query_vector, limit=10):
-        return await self._index.query_items(query_vector, limit)
+    async def search(self, query_vector, limit=10):
+        hits = await self._index.query_items(query_vector, limit)
+        for hit in hits:
+            data = hit["item"]["metadata"]
+            yield data
 
     def init_db(self):
         if not self._index.is_index_created():
@@ -47,10 +51,15 @@ class LocalDB:
         return {}
 
     def create_point(self, index, url, title, vec, sentence):
-        raise NotImplementedError()
+        point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
+        metadata = {"url": url, "title": title, "sentence": sentence}
+        return {"id": point_id, "metadata": metadata, "vector": vec}
 
     async def index(self, points):
-        raise NotImplementedError()
+        res = []
+        for point in points:
+            res.append(await self._index.upsert_item(point))
+        return res
 
 
 class QDrantDB:
@@ -61,9 +70,11 @@ class QDrantDB:
         self._collection_name = "pages"
 
     async def search(self, query_vector, limit=10):
-        return self.client.search(
+        hits = self.client.search(
             self._collection_name, query_vector=query_vector, limit=limit
         )
+        for hit in hits:
+            yield hit.payload
 
     async def index(self, points):
         return self.client.upsert(

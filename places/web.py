@@ -88,11 +88,10 @@ async def search(request):
     res = OrderedDict()
 
     for hit in await request.app.query(q):
-        payload = hit.payload
-        url = payload["url"]
-        title = payload["title"]
+        url = hit["url"]
+        title = hit["title"]
         key = url, title
-        sentence = payload["sentence"]
+        sentence = hit["sentence"]
 
         if key in res:
             if sentence not in res[key]:
@@ -139,7 +138,9 @@ class PlacesApplication(web.Application):
         embedding = await self.run_in_executor(self.model.encode, [sentence])
         vector = numpy.asfarray(embedding[0])
         vector = list(vector)
-        hits = await self.client.search(query_vector=vector, limit=10)
+        hits = []
+        async for hit in self.client.search(query_vector=vector, limit=10):
+            hits.append(hit)
         return hits
 
     def init_db(self):
