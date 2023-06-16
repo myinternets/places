@@ -70,7 +70,6 @@ async def index_doc(request):
 
         try:
             resp = await request.app.client.index(points=points)
-            print(resp)
             res = await request.app.json_resp(resp)
         except Exception as e:
             print("Failed to send points to vector db")

@@ -48,7 +48,8 @@ class LocalDB:
             self._index.create_index()
 
     async def get_db_info(self):
-        return {}
+        stats = await self._index.get_index_stats()
+        return {"name": f"Vectra v{stats['version']}", "vectors_count": stats["items"]}
 
     def create_point(self, index, url, title, vec, sentence):
         point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
@@ -103,7 +104,9 @@ class QDrantDB:
             )
 
     async def get_db_info(self):
-        return self.client.get_collection(collection_name=self._collection_name)
+        info = dict(self.client.get_collection(collection_name=self._collection_name))
+        info["name"] = "QDrant"
+        return info
 
 
 def json_error(func):
