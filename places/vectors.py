@@ -2,7 +2,6 @@ import functools
 import json
 from multiprocessing import current_process
 import traceback as tb
-import hashlib
 
 import aiohttp
 import ujson
@@ -13,100 +12,11 @@ from txtai.pipeline import Summary
 from txtai.pipeline.data import Segmentation
 
 from places.utils import task_pool
-from places.vectra import LocalIndex
 
-from qdrant_client import QdrantClient
-from qdrant_client.http import models
-from qdrant_client.models import PointStruct
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 summary = Summary("sshleifer/distilbart-cnn-12-6")
 segmentation = Segmentation(sentences=True)
-
-
-def get_db(**kw):
-    if kw["db"] == "qdrant":
-        return QDrantDB(**kw)
-    return LocalDB(**kw)
-
-
-# could use https://github.com/spotify/annoy instead
-class LocalDB:
-    def __init__(self, **kw):
-        self.path = kw["vectra_path"]
-        self._index = LocalIndex(self.path)
-        self._collection_name = "pages"
-
-    async def search(self, query_vector, limit=10):
-        hits = await self._index.query_items(query_vector, limit)
-        for hit in hits:
-            data = hit["item"]["metadata"]
-            yield data
-
-    def init_db(self):
-        if not self._index.is_index_created():
-            self._index.create_index()
-
-    async def get_db_info(self):
-        stats = await self._index.get_index_stats()
-        return {"name": f"Vectra v{stats['version']}", "vectors_count": stats["items"]}
-
-    def create_point(self, index, url, title, vec, sentence):
-        point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
-        metadata = {"url": url, "title": title, "sentence": sentence}
-        return {"id": point_id, "metadata": metadata, "vector": vec}
-
-    async def index(self, points):
-        res = []
-        for point in points:
-            res.append(await self._index.upsert_item(point))
-        return res
-
-
-class QDrantDB:
-    def __init__(self, **kw):
-        self.host = kw.pop("qdrant_host", "localhost")
-        self.port = kw.pop("qdrant_port", 6333)
-        self.client = QdrantClient(host=self.host, port=self.port)
-        self._collection_name = "pages"
-
-    async def search(self, query_vector, limit=10):
-        hits = self.client.search(
-            self._collection_name, query_vector=query_vector, limit=limit
-        )
-        for hit in hits:
-            yield hit.payload
-
-    async def index(self, points):
-        return self.client.upsert(
-            collection_name=self._collection_name,
-            points=points,
-        ).json()
-
-    def create_point(self, index, url, title, vec, sentence):
-        point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
-        return PointStruct(
-            id=point_id,
-            vector=vec,
-            payload={"url": url, "sentence": sentence, "title": title},
-        )
-
-    def init_db(self):
-        try:
-            self.client.get_collection(collection_name=self._collection_name)
-            return
-        except Exception:
-            self.client.recreate_collection(
-                collection_name=self._collection_name,
-                vectors_config=models.VectorParams(
-                    size=384, distance=models.Distance.COSINE
-                ),
-            )
-
-    async def get_db_info(self):
-        info = dict(self.client.get_collection(collection_name=self._collection_name))
-        info["name"] = "QDrant"
-        return info
 
 
 def json_error(func):

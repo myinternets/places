@@ -11,7 +11,8 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 from sentence_transformers import SentenceTransformer
 
-from places.vectors import build_vector, get_db
+from places.vectors import build_vector
+from places.backends import get_db
 
 # XXX will be moved by other PRs
 from places.places_db import should_skip
