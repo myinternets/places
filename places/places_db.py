@@ -8,7 +8,7 @@ from places.utils import remove_bom
 # (regex, blocklists, patterns etc.)
 skip = (
     "github.com",
-    "google.com",
+    "https://google.com",
     "compute.amazonaws.com",
     "googleadservices.com",
     "dartsearch",

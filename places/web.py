@@ -1,5 +1,4 @@
 import asyncio
-import hashlib
 import json
 import logging
 import os
@@ -10,12 +9,9 @@ import traceback as tb
 import numpy
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
-from qdrant_client import QdrantClient
-from qdrant_client.http import models
-from qdrant_client.models import PointStruct
 from sentence_transformers import SentenceTransformer
 
-from places.vectors import build_vector
+from places.vectors import build_vector, get_db
 
 # XXX will be moved by other PRs
 from places.places_db import should_skip
@@ -31,16 +27,6 @@ def error_to_json(e):
         "error": repr(e),
         "tb": "".join(tb.format_exception(None, e, e.__traceback__)),
     }
-
-
-def create_point(index, url, title, vec, sentence):
-    point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
-
-    return PointStruct(
-        id=point_id,
-        vector=list(numpy.asfarray(vec)),
-        payload={"url": url, "sentence": sentence, "title": title},
-    )
 
 
 @routes.post("/index")
@@ -73,24 +59,20 @@ async def index_doc(request):
 
         for idx, (vec, sentence) in enumerate(zip(vectors, sentences, strict=True)):
             try:
-                point = create_point(idx, url, title, vec, sentence)
+                point = request.app.client.create_point(
+                    idx, url, title, list(numpy.asfarray(vec)), sentence
+                )
             except Exception as e:
                 print("Failed to create a point")
                 return await request.app.json_resp({"error": str(e)}, 400)
 
             points.append(point)
 
-        # TODO IO-bound, should be done in an async call (qdrant_python supports this)
         try:
-            qdrant_resp = request.app.client.upsert(
-                collection_name=COLLECTION_NAME,
-                points=points,
-            ).json()
-            print(qdrant_resp)
-
-            res = await request.app.json_resp(qdrant_resp)
+            resp = await request.app.client.index(points=points)
+            res = await request.app.json_resp(resp)
         except Exception as e:
-            print("Failed to send points to qdrant")
+            print("Failed to send points to vector db")
             return await request.app.json_resp({"error": str(e)}, 400)
 
         return res
@@ -105,11 +87,10 @@ async def search(request):
     res = OrderedDict()
 
     for hit in await request.app.query(q):
-        payload = hit.payload
-        url = payload["url"]
-        title = payload["title"]
+        url = hit["url"]
+        title = hit["title"]
         key = url, title
-        sentence = payload["sentence"]
+        sentence = hit["sentence"]
 
         if key in res:
             if sentence not in res[key]:
@@ -135,14 +116,12 @@ async def index(request):
 
 
 class PlacesApplication(web.Application):
-    def __init__(self, *args, **kw):
-        self.qdrant_host = kw.pop("qdrant_host", "localhost")
-        self.qdrant_port = kw.pop("qdrant_port", 6333)
+    def __init__(self, args):
+        super().__init__(client_max_size=None)
 
-        super().__init__(*args, **kw)
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")))
-        self.client = QdrantClient(host=self.qdrant_host, port=self.qdrant_port)
+        self.client = get_db(**args)
         self.executor = ProcessPoolExecutor()
         self.on_startup.append(self._startup)
         self.on_cleanup.append(self._cleanup)
@@ -158,26 +137,16 @@ class PlacesApplication(web.Application):
         embedding = await self.run_in_executor(self.model.encode, [sentence])
         vector = numpy.asfarray(embedding[0])
         vector = list(vector)
-        # should move to i-o bound
-        hits = self.client.search(
-            collection_name=COLLECTION_NAME, query_vector=vector, limit=10
-        )
+        hits = []
+        async for hit in self.client.search(query_vector=vector, limit=10):
+            hits.append(hit)
         return hits
 
     def init_db(self):
-        try:
-            self.client.get_collection(collection_name=COLLECTION_NAME)
-            return
-        except Exception:
-            self.client.recreate_collection(
-                collection_name=COLLECTION_NAME,
-                vectors_config=models.VectorParams(
-                    size=384, distance=models.Distance.COSINE
-                ),
-            )
+        self.client.init_db()
 
     async def get_db_info(self):
-        return self.client.get_collection(collection_name=COLLECTION_NAME)
+        return await self.client.get_db_info()
 
     async def html_resp(self, template, status=200, **args):
         template = self.env.get_template(template)
@@ -208,7 +177,7 @@ class PlacesApplication(web.Application):
 
 def main(args):
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
-    app = PlacesApplication(client_max_size=None, **args)
+    app = PlacesApplication(args)
     app.add_routes(routes)
     app.init_db()
     print("Starting semantic bookmarks server...")
