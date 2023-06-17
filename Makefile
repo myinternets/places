@@ -54,3 +54,9 @@ clean:
 	docker compose kill
 	docker compose rm -f 2>/dev/null || true
 	# docker rm -f places qdrant 2>/dev/null
+
+build-webext:
+	mkdir -p dist; cd firefox; rm -rf web-ext-artifacts; web-ext build -n places-0.0.1.xpi
+
+sign-webext:
+	web-ext sign -s firefox -a dist --api-key=$(AMO_JWT_ISSUER) --api-secret=$(AMO_JWT_SECRET)
