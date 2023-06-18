@@ -20,7 +20,7 @@ def main():
     web_parser = subparsers.add_parser("web", help="Run the web server")
     web_parser.set_defaults(func=run_web)
     web_parser.add_argument(
-        "--db", type=str, default="qdrant", choices=["qdrant", "vectra"]
+        "--db", type=str, default="qdrant", choices=["qdrant", "vectra", "nuclia"]
     )
     web_parser.add_argument("--vectra-path", type=str, default="data.db")
     web_parser.add_argument("--qdrant-host", type=str, default="localhost")
