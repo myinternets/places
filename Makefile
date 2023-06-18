@@ -23,6 +23,9 @@ index:
 web:
 	.venv/bin/places web
 
+run-standalone-web:
+	.venv/bin/places web --db vectra
+
 build-app:
 	docker build -t tarek/places .
 	# docker build --progress=plain -t tarek/places . 2>&1 > /tmp/build.log
