@@ -2,28 +2,7 @@ import json
 import sqlite3
 from urllib.parse import urlparse
 
-from places.utils import remove_bom
-
-# TODO: replace this with a sophisticated list
-# (regex, blocklists, patterns etc.)
-skip = (
-    "github.com",
-    "https://google.com",
-    "compute.amazonaws.com",
-    "googleadservices.com",
-    "dartsearch",
-    "facebook.com",
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-)
-
-
-def should_skip(url):
-    for skipped in skip:
-        if skipped in url:
-            return True
-    return False
+from places.utils import remove_bom, should_skip
 
 
 class SessionBuddy:

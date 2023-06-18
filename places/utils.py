@@ -2,6 +2,27 @@ import asyncio
 import functools
 from contextlib import asynccontextmanager
 
+# TODO: replace this with a sophisticated list
+# (regex, blocklists, patterns etc.)
+_SKIP = (
+    "github.com",
+    "https://google.com",
+    "compute.amazonaws.com",
+    "googleadservices.com",
+    "dartsearch",
+    "facebook.com",
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+)
+
+
+def should_skip(url):
+    for skipped in _SKIP:
+        if skipped in url:
+            return True
+    return False
+
 
 class Tasks:
     def __init__(self, concurrency=5, cb=None):

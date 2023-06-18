@@ -13,9 +13,7 @@ from sentence_transformers import SentenceTransformer
 
 from places.vectors import build_vector
 from places.backends import get_db
-
-# XXX will be moved by other PRs
-from places.places_db import should_skip
+from places.utils import should_skip
 
 
 HERE = os.path.dirname(__file__)
