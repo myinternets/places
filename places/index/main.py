@@ -4,7 +4,7 @@ import sys
 
 from diskcache import Cache
 
-from places.places_db import Places, SessionBuddy
+from places.index import Places, SessionBuddy
 from places.scrap import WebScrap
 from places.vectors import Upserter
 
