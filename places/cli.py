@@ -36,15 +36,15 @@ def main():
 
 
 def run_index(args):
-    from places.index import main
+    from places.index.main import main
 
-    asyncio.run(main(args.database))
+    asyncio.run(main(args["database"]))
 
 
 def run_query(args):
     from places.query import query
 
-    query(args.query)
+    query(args["query"])
 
 
 def run_web(args):

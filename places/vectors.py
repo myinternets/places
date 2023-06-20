@@ -9,7 +9,8 @@ import ujson
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 
-from places.utils import task_pool
+from places.utils import task_pool, detect_lang
+
 
 model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
 
@@ -67,11 +68,18 @@ def build_vector(data):
         title = ""
 
     text = soup.get_text()
-    sentences = nltk.sent_tokenize(text)
+    lang = detect_lang(text)
+
+    sentences = nltk.sent_tokenize(text, language=lang)
     embeddings = model.encode(sentences)
 
     return json.dumps(
-        {"vectors": embeddings.tolist(), "sentences": sentences, "title": title}
+        {
+            "vectors": embeddings.tolist(),
+            "sentences": sentences,
+            "title": title,
+            "lang": lang,
+        }
     )
 
 

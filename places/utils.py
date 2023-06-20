@@ -1,9 +1,13 @@
 import asyncio
 import functools
 from contextlib import asynccontextmanager
+import os
 
 import numpy as np
 from sentence_transformers import util
+import fasttext
+from nltk.langnames import langname
+import nltk
 
 from places.lexrank import degree_centrality_scores
 
@@ -101,3 +105,21 @@ def sort_by_centrality(embeddings):
     centrality_scores = degree_centrality_scores(cos_scores, threshold=None)
     most_central_sentence_indices = np.argsort(-centrality_scores)
     return most_central_sentence_indices
+
+
+_LANG_MODEL = fasttext.load_model(
+    os.path.join(os.path.dirname(__file__), "lid.176.ftz")
+)
+
+nltk.download("punkt")
+nltk.download("bcp47")
+
+
+def detect_lang(text):
+    try:
+        predictions = _LANG_MODEL.predict(text.replace("\n", " "), k=1)
+        lang = predictions[0][0].split("__")[-1]
+        return langname(lang).lower()
+    except Exception:
+        # will do better later
+        return 'english'
