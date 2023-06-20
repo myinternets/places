@@ -73,21 +73,23 @@ def build_vector(data):
     sentences = nltk.sent_tokenize(text)
     embeddings = model.encode(sentences)
 
-    cos_scores = util.cos_sim(embeddings, embeddings).numpy()
-    centrality_scores = degree_centrality_scores(cos_scores, threshold=None)
-    most_central_sentence_indices = np.argsort(-centrality_scores)
+    # XXX I am not sure summarizing is a good idea, it loses content
+    #
+    #cos_scores = util.cos_sim(embeddings, embeddings).numpy()
+    #centrality_scores = degree_centrality_scores(cos_scores, threshold=None)
+    #most_central_sentence_indices = np.argsort(-centrality_scores)
 
     # we keep the 10 most central sentences
-    best_embeddings = []
-    best_sentences = []
+    #best_embeddings = []
+    #best_sentences = []
     embeddings = embeddings.tolist()
 
-    for idx in most_central_sentence_indices[:10]:
-        best_sentences.append(sentences[idx])
-        best_embeddings.append(embeddings[idx])
+    #for idx in most_central_sentence_indices[:10]:
+    #    best_sentences.append(sentences[idx])
+    #    best_embeddings.append(embeddings[idx])
 
     return json.dumps(
-        {"vectors": best_embeddings, "sentences": best_sentences, "title": title}
+        {"vectors": embeddings, "sentences": sentences, "title": title}
     )
 
 

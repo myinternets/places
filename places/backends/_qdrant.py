@@ -41,7 +41,7 @@ class QDrantDB:
             self.client.recreate_collection(
                 collection_name=self._collection_name,
                 vectors_config=models.VectorParams(
-                    size=384, distance=models.Distance.COSINE
+                    size=512, distance=models.Distance.COSINE
                 ),
             )
 
