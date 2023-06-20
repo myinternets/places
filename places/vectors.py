@@ -69,7 +69,6 @@ def build_vector(data):
     text = soup.get_text()
     sentences = nltk.sent_tokenize(text)
     embeddings = model.encode(sentences)
-    embeddings = embeddings.tolist()
 
     return json.dumps(
         {"vectors": embeddings.tolist(), "sentences": sentences, "title": title}
