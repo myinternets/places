@@ -14,7 +14,7 @@ from txtai.pipeline.data import Segmentation
 from places.utils import task_pool
 
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
 summary = Summary("sshleifer/distilbart-cnn-12-6")
 segmentation = Segmentation(sentences=True)
 

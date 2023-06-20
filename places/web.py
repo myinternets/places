@@ -11,7 +11,7 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 from sentence_transformers import SentenceTransformer
 
-from places.vectors import build_vector
+from places.vectors import build_vector, model
 from places.backends import get_db
 from places.utils import should_skip
 
@@ -117,8 +117,6 @@ async def index(request):
 class PlacesApplication(web.Application):
     def __init__(self, args):
         super().__init__(client_max_size=None)
-
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")))
         self.client = get_db(**args)
         self.executor = ProcessPoolExecutor()
@@ -133,7 +131,7 @@ class PlacesApplication(web.Application):
 
     async def query(self, sentence):
         # vectorize the query
-        embedding = await self.run_in_executor(self.model.encode, [sentence])
+        embedding = await self.run_in_executor(model.encode, [sentence])
         vector = numpy.asfarray(embedding[0])
         vector = list(vector)
         hits = []
