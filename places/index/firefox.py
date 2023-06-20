@@ -1,8 +1,7 @@
-import json
 import sqlite3
 from urllib.parse import urlparse
-from places.utils import should_skip
 
+from places.utils import should_skip
 
 
 class Places:

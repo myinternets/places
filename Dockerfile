@@ -46,7 +46,7 @@ RUN mkdir -p /app/logs
 RUN mkdir -p /app/share
 
 RUN python -m nltk.downloader punkt
-RUN python -c 'from sentence_transformers import SentenceTransformer; SentenceTransformer("all-MiniLM-L6-v2")'
+RUN python -c 'from sentence_transformers import SentenceTransformer; SentenceTransformer("distiluse-base-multilingual-cased-v1")'
 
 # copy the source code
 COPY . /app

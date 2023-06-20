@@ -2,19 +2,17 @@ import asyncio
 import json
 import logging
 import os
+import traceback as tb
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor
-import traceback as tb
 
 import numpy
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
-from sentence_transformers import SentenceTransformer
 
-from places.vectors import build_vector, model
 from places.backends import get_db
 from places.utils import should_skip
-
+from places.vectors import build_vector, model
 
 HERE = os.path.dirname(__file__)
 COLLECTION_NAME = "pages"

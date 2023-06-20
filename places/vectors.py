@@ -1,22 +1,19 @@
 import functools
 import json
-from multiprocessing import current_process
 import traceback as tb
+from multiprocessing import current_process
 
 import aiohttp
+import nltk
+import numpy as np
 import ujson
 from bs4 import BeautifulSoup
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 
-from txtai.pipeline import Summary
-from txtai.pipeline.data import Segmentation
-
+from places.lexrank import degree_centrality_scores
 from places.utils import task_pool
 
-
 model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
-summary = Summary("sshleifer/distilbart-cnn-12-6")
-segmentation = Segmentation(sentences=True)
 
 
 def json_error(func):
@@ -73,14 +70,24 @@ def build_vector(data):
 
     text = soup.get_text()
 
-    if len(text) > 1024:
-        text = summary(text)
+    sentences = nltk.sent_tokenize(text)
+    embeddings = model.encode(sentences)
 
-    sentences = segmentation(text)
-    vectors = model.encode(sentences)
+    cos_scores = util.cos_sim(embeddings, embeddings).numpy()
+    centrality_scores = degree_centrality_scores(cos_scores, threshold=None)
+    most_central_sentence_indices = np.argsort(-centrality_scores)
+
+    # we keep the 10 most central sentences
+    best_embeddings = []
+    best_sentences = []
+    embeddings = embeddings.tolist()
+
+    for idx in most_central_sentence_indices[:10]:
+        best_sentences.append(sentences[idx])
+        best_embeddings.append(embeddings[idx])
 
     return json.dumps(
-        {"vectors": vectors.tolist(), "sentences": sentences, "title": title}
+        {"vectors": best_embeddings, "sentences": best_sentences, "title": title}
     )
 
 

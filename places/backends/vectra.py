@@ -1,11 +1,11 @@
 # https://github.com/BMS-geodev/vectra-py
 # LICENCE MIT Copyright (c) 2023 brian schleckser
-import math
-from typing import Any, Dict, List, Optional, Union
-import json
-import os
 import asyncio
+import json
+import math
+import os
 import uuid
+from typing import Any, Dict, List, Optional, Union
 
 
 class CreateIndexConfig:

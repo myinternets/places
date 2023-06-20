@@ -1,4 +1,5 @@
 import hashlib
+
 from places.backends.vectra import LocalIndex
 
 

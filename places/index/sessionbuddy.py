@@ -1,4 +1,6 @@
 import json
+from urllib.parse import urlparse
+
 from places.utils import remove_bom, should_skip
 
 
