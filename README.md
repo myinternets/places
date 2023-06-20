@@ -65,11 +65,14 @@ Note: default install uses GPU, if you don't have one, you can change it to `mak
 
 ### Installing the web extension (Firefox)
 
-To install the web extension, open `about:debugging` in your browser and load a temporary
-extension in "This Firefox" -- you can browse into the `firefox` dir in the project and
-select any file. Once it's installed you can clik on the toolbar on the `extensions` icon and 
-add the magnifier to your toolbar. It's a link to `http://localhost:8080` to display the
-search page.
+Use a pre-release [open me in Firefox](https://github.com/myinternets/places/releases/download/0.0.1-SNAPSHOT/places-0.0.1.xpi)
+
+Alternatively, you can install a temporary extension. Open `about:debugging` in
+your browser and load a temporary extension in "This Firefox" -- you can browse
+into the `firefox` dir in the project and select any file. Once it's installed
+you can clik on the toolbar on the `extensions` icon and add the magnifier to
+your toolbar. It's a link to `http://localhost:8080` to display the search
+page.
 
 
 ## Run
