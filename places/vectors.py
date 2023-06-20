@@ -5,12 +5,10 @@ from multiprocessing import current_process
 
 import aiohttp
 import nltk
-import numpy as np
 import ujson
 from bs4 import BeautifulSoup
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import SentenceTransformer
 
-from places.lexrank import degree_centrality_scores
 from places.utils import task_pool
 
 model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
@@ -69,27 +67,12 @@ def build_vector(data):
         title = ""
 
     text = soup.get_text()
-
     sentences = nltk.sent_tokenize(text)
     embeddings = model.encode(sentences)
-
-    # XXX I am not sure summarizing is a good idea, it loses content
-    #
-    #cos_scores = util.cos_sim(embeddings, embeddings).numpy()
-    #centrality_scores = degree_centrality_scores(cos_scores, threshold=None)
-    #most_central_sentence_indices = np.argsort(-centrality_scores)
-
-    # we keep the 10 most central sentences
-    #best_embeddings = []
-    #best_sentences = []
     embeddings = embeddings.tolist()
 
-    #for idx in most_central_sentence_indices[:10]:
-    #    best_sentences.append(sentences[idx])
-    #    best_embeddings.append(embeddings[idx])
-
     return json.dumps(
-        {"vectors": embeddings, "sentences": sentences, "title": title}
+        {"vectors": embeddings.tolist(), "sentences": sentences, "title": title}
     )
 
 

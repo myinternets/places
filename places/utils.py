@@ -2,6 +2,12 @@ import asyncio
 import functools
 from contextlib import asynccontextmanager
 
+import numpy as np
+from sentence_transformers import util
+
+from places.lexrank import degree_centrality_scores
+
+
 # TODO: replace this with a sophisticated list
 # (regex, blocklists, patterns etc.)
 _SKIP = (
@@ -88,3 +94,10 @@ def remove_bom(file_path):
             f.write(content)
     else:
         print(f"...no BOM found in {file_path}")
+
+
+def sort_by_centrality(embeddings):
+    cos_scores = util.cos_sim(embeddings, embeddings).numpy()
+    centrality_scores = degree_centrality_scores(cos_scores, threshold=None)
+    most_central_sentence_indices = np.argsort(-centrality_scores)
+    return most_central_sentence_indices
