@@ -52,6 +52,12 @@ async def index_doc(request):
         vectors = resp["vectors"]
         sentences = resp["sentences"]
         title = resp["title"]
+        if len(sentences) < 5:
+            print(f"only {len(sentences)} skipping")
+            return await request.app.json_resp(
+                {"result": f"only {len(sentences)} skipping"}, 200
+            )
+
         points = []
 
         for idx, (vec, sentence) in enumerate(zip(vectors, sentences, strict=True)):

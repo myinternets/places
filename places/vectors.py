@@ -68,7 +68,9 @@ def build_vector(data):
             }
         )
     finally:
-        print(f"[extractor][{cp.pid}] {url} done in {time.time() - start}")
+        print(
+            f"[extractor][{cp.pid}] {url} done in {time.time() - start} - {len(sentences)} sentences"
+        )
 
 
 class Upserter:
