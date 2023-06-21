@@ -2,14 +2,13 @@ import functools
 import json
 import traceback as tb
 from multiprocessing import current_process
+import time
 
 import aiohttp
-import nltk
 import ujson
-from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 
-from places.utils import task_pool, detect_lang
+from places.utils import task_pool, tokenize_html
 
 
 model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
@@ -49,38 +48,27 @@ def build_vector(data):
     - title: the title of the page
 
     """
-
     data = json.loads(data)
     url = data["url"]
     text = data["text"]
-
     cp = current_process()
     print(f"[extractor][{cp.pid}] working on {url}")
-    soup = BeautifulSoup(text, "html.parser")
-
+    start = time.time()
     try:
-        title = soup.title
-        if title is None:
-            title = ""
-        else:
-            title = title.string
-    except Exception:
-        title = ""
+        title, sentences, lang = tokenize_html(text)
+        sentences = list(sentences)
+        embeddings = model.encode(sentences)
 
-    text = soup.get_text()
-    lang = detect_lang(text)
-
-    sentences = nltk.sent_tokenize(text, language=lang)
-    embeddings = model.encode(sentences)
-
-    return json.dumps(
-        {
-            "vectors": embeddings.tolist(),
-            "sentences": sentences,
-            "title": title,
-            "lang": lang,
-        }
-    )
+        return json.dumps(
+            {
+                "vectors": embeddings.tolist(),
+                "sentences": sentences,
+                "title": title,
+                "lang": lang,
+            }
+        )
+    finally:
+        print(f"[extractor][{cp.pid}] {url} done in {time.time() - start}")
 
 
 class Upserter:

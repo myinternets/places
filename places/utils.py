@@ -2,12 +2,14 @@ import asyncio
 import functools
 from contextlib import asynccontextmanager
 import os
+import re
 
 import numpy as np
 from sentence_transformers import util
 import fasttext
 from nltk.langnames import langname
 import nltk
+from bs4 import BeautifulSoup
 
 from places.lexrank import degree_centrality_scores
 
@@ -122,4 +124,34 @@ def detect_lang(text):
         return langname(lang).lower()
     except Exception:
         # will do better later
-        return 'english'
+        return "english"
+
+
+_RE_TEXT = re.compile(r"\s+")
+
+
+def tokenize(text, lang=None):
+    if lang is None:
+        lang = detect_lang(text)
+    for sentence in nltk.sent_tokenize(text, language=lang):
+        sentence = _RE_TEXT.sub(" ", sentence).strip()
+        if sentence == "":
+            continue
+        yield sentence
+
+
+def tokenize_html(html):
+    soup = BeautifulSoup(html, "html.parser")
+    try:
+        title = soup.title
+        if title is None:
+            title = ""
+        else:
+            title = title.string
+    except Exception:
+        title = ""
+
+    title = _RE_TEXT.sub(" ", title).strip()
+    text = soup.get_text()
+    lang = detect_lang(text)
+    return title, tokenize(text, lang), lang

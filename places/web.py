@@ -40,18 +40,18 @@ async def index_doc(request):
         try:
             resp = await request.app.run_in_executor(build_vector, v_payload)
         except Exception as e:
-            print("Failed to vectorize")
+            print(f"Failed to vectorize {repr(e)}")
             return await request.app.json_resp({"error": str(e)}, 400)
 
+        resp = json.loads(resp)
+
         if "error" in resp:
-            print("Failed to vectorize")
+            print(f"Failed to vectorize {resp['error']}")
             return await request.app.json_resp(resp, 400)
 
-        vector = json.loads(resp)
-
-        vectors = vector["vectors"]
-        sentences = vector["sentences"]
-        title = vector["title"]
+        vectors = resp["vectors"]
+        sentences = resp["sentences"]
+        title = resp["title"]
         points = []
 
         for idx, (vec, sentence) in enumerate(zip(vectors, sentences, strict=True)):
