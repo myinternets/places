@@ -9,9 +9,11 @@ import ujson
 from sentence_transformers import SentenceTransformer
 
 from places.utils import task_pool, tokenize_html
+from places.webdb import Pages
 
 
 model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
+pages_db = Pages("/tmp/pages")
 
 
 def json_error(func):
@@ -55,7 +57,8 @@ def build_vector(data):
     print(f"[extractor][{cp.pid}] working on {url}")
     start = time.time()
     try:
-        title, sentences, lang = tokenize_html(text)
+        title, sentences, lang, text = tokenize_html(text)
+        pages_db.set(url, {"text": text})
         sentences = list(sentences)
         embeddings = model.encode(sentences)
 
@@ -65,6 +68,7 @@ def build_vector(data):
                 "sentences": sentences,
                 "title": title,
                 "lang": lang,
+                "text": text,
             }
         )
     finally:

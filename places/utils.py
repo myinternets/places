@@ -3,6 +3,8 @@ import functools
 from contextlib import asynccontextmanager
 import os
 import re
+from functools import cache
+from urllib.parse import urlparse
 
 import numpy as np
 from sentence_transformers import util
@@ -10,6 +12,7 @@ import fasttext
 from nltk.langnames import langname
 import nltk
 from bs4 import BeautifulSoup
+from transformers import pipeline
 
 from places.lexrank import degree_centrality_scores
 
@@ -17,23 +20,18 @@ from places.lexrank import degree_centrality_scores
 # TODO: replace this with a sophisticated list
 # (regex, blocklists, patterns etc.)
 _SKIP = (
-    "github.com",
-    "https://google.com",
+    "www.google.com",
     "compute.amazonaws.com",
-    "googleadservices.com",
-    "dartsearch",
-    "facebook.com",
+    "www.facebook.com",
     "localhost",
     "127.0.0.1",
     "0.0.0.0",
 )
+_QA = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
 
 def should_skip(url):
-    for skipped in _SKIP:
-        if skipped in url:
-            return True
-    return False
+    return urlparse(url).hostname in _SKIP
 
 
 class Tasks:
@@ -154,4 +152,9 @@ def tokenize_html(html):
     title = _RE_TEXT.sub(" ", title).strip()
     text = soup.get_text()
     lang = detect_lang(text)
-    return title, tokenize(text, lang), lang
+    return title, tokenize(text, lang), lang, text
+
+
+@cache
+def answer(question, context):
+    return _QA(context=context, question=question)

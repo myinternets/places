@@ -11,8 +11,10 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import should_skip
+from places.utils import should_skip, answer
 from places.vectors import build_vector, model
+from places.webdb import Pages
+
 
 HERE = os.path.dirname(__file__)
 COLLECTION_NAME = "pages"
@@ -35,6 +37,8 @@ async def index_doc(request):
             print(f"Skipping {url}")
             return await request.app.json_resp({"result": "skipped domain"}, 200)
 
+        # storing the page
+        request.app.pages_db.set(url, {"html": data["text"]})
         v_payload = json.dumps({"url": url, "text": data["text"]})
 
         try:
@@ -52,6 +56,7 @@ async def index_doc(request):
         vectors = resp["vectors"]
         sentences = resp["sentences"]
         title = resp["title"]
+
         if len(sentences) < 5:
             print(f"only {len(sentences)} skipping")
             return await request.app.json_resp(
@@ -86,14 +91,21 @@ async def index_doc(request):
 
 @routes.get("/search")
 async def search(request):
-    q = request.query["q"]
+    q = request.query["q"].strip()
+    question = q.endswith('?')
+
     res = OrderedDict()
 
+    urls = []
+
+    print("Queyring..")
     for hit in await request.app.query(q):
         url = hit["url"]
         title = hit["title"]
         key = url, title
         sentence = hit["sentence"]
+        if url not in urls:
+            urls.append(url)
 
         if key in res:
             if sentence not in res[key]:
@@ -103,10 +115,25 @@ async def search(request):
 
     hits = [list(k) + [sentences] for k, sentences in res.items()]
 
+    # answers could be built asynchronously and update the page after
+    # it's expensive!
+    answers = []
+
+    if question:
+        # XXX building just the first one
+        for url in urls[:1]:
+            print(f"Building answer for {url}")
+            text = request.app.pages_db.get(url)["text"]
+            a = answer(q, text)
+            answers.append((a["score"], a["answer"], url))
+
+        answers.sort(reverse=True)
+
     args = {
         "args": {"title": "My Internets"},
         "description": "Search Your History",
         "hits": hits,
+        "answers": answers,
         "query": q,
     }
     return await request.app.html_resp("index.html", **args)
@@ -114,7 +141,11 @@ async def search(request):
 
 @routes.get("/")
 async def index(request):
-    args = {"args": {"title": "My Internets"}, "description": "Search Your History"}
+    args = {
+        "args": {"title": "My Internets"},
+        "description": "Search Your History",
+        "answers": [],
+    }
     return await request.app.html_resp("index.html", **args)
 
 
@@ -126,6 +157,7 @@ class PlacesApplication(web.Application):
         self.executor = ProcessPoolExecutor()
         self.on_startup.append(self._startup)
         self.on_cleanup.append(self._cleanup)
+        self.pages_db = Pages("/tmp/pages")
 
     async def _startup(self, app):
         self["loop"] = asyncio.get_running_loop()
