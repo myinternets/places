@@ -12,6 +12,30 @@
 pre {
     white-space: pre-wrap;
 }
+
+div.answer-box {
+ padding: 20px;
+ border: 1px solid #c2c2c2;
+ border-radius: 5px;
+ margin-bottom: 10px;
+}
+
+div.answer {
+ font-size: 120%;
+ font-weight: bold;
+ margin-bottom: 35px;
+
+}
+div.answer-url {
+ font-size: 80%;
+ font-style: italic;
+}
+
+::placeholder {
+  color: grey;
+  opacity: 1; /* Firefox */
+}
+
 </style>
 
 
@@ -23,20 +47,28 @@ pre {
     <div class="clearfix"></div>
   </header>
 
-      <form action="/search" method="get">
-		  <p class="grouped">
+  <form action="/search" method="get">
+      <p class="grouped">
                 <input
                   type="search"
                   name="q"
                   id="q"
-                  placeholder="Search Your History"
-				  value="{{query}}" autofocus
-				  />
+                  placeholder="Search Your History. Finish with a question mark (`?`) to get an answer."
+          value="{{query}}" autofocus
+          />
                 <button class="button icon-only">
                   <img src="https://icongr.am/feather/search.svg?size=16" />
                 </button>
-			</p>
-      </form>
+      </p>
+  </form>
+
+    {% for score, answer, url in answers[:1] %}
+      <div class="answer-box">
+          <div class="answer">{{answer}}</div>
+          <hr/>
+          <div class="answer-url">⮕ <a href="{{url}}">{{url}}</url></div>
+      </div>
+    {% endfor %}
       {% for url, title, sentences in hits %}
 
       <div class="row">

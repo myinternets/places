@@ -9,7 +9,7 @@ class QDrantDB:
     def __init__(self, **kw):
         self.host = kw.pop("qdrant_host", "localhost")
         self.port = kw.pop("qdrant_port", 6333)
-        self.client = QdrantClient(host=self.host, port=self.port)
+        self.client = QdrantClient(host=self.host, port=self.port, timeout=120)
         self._collection_name = "pages"
 
     async def search(self, query_vector, limit=10):
@@ -19,11 +19,20 @@ class QDrantDB:
         for hit in hits:
             yield hit.payload
 
+    def _chunks(self, points, n=10):
+        for i in range(0, len(points), n):
+            yield points[i : i + n]
+
     async def index(self, points):
-        return self.client.upsert(
-            collection_name=self._collection_name,
-            points=points,
-        ).json()
+        res = []
+        for sub in self._chunks(points):
+            res.append(
+                self.client.upsert(
+                    collection_name=self._collection_name,
+                    points=sub,
+                ).json()
+            )
+        return res
 
     def create_point(self, index, url, title, vec, sentence):
         point_id = hashlib.md5(f"{url}-{index}".encode()).hexdigest()
