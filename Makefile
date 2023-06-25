@@ -1,4 +1,4 @@
-.PHONY: clean run-quadrant index web install build-app run-app
+.PHONY: clean run-quadrant index web install build-app run-app test
 
 install-cpu:
 	python3 scripts/generate_pytorch_dep_urls.py

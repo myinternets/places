@@ -18,4 +18,4 @@ def get_blocklist(additional="blocklist.txt.local"):
     return set(blocklist)
 
 
-URL_SKIPLIST = get_blocklist()
+URL_SKIP_LIST = get_blocklist()
