@@ -91,7 +91,7 @@ async def index_doc(request):
 @routes.get("/search")
 async def search(request):
     q = request.query["q"].strip()
-    question = q.endswith('?')
+    question = q.endswith("?")
 
     res = OrderedDict()
 
@@ -124,7 +124,28 @@ async def search(request):
             print(f"Building answer for {url}")
             text = request.app.pages_db.get(url)["text"]
             a = answer(q, text)
-            answers.append((a["score"], a["answer"], url))
+
+            # XXX UGLY
+            # grabbing the surroundings of the answer
+            n_start = a["start"]
+            n_end = a["end"]
+            while text[n_start] != "\n" and n_start > 0:
+                n_start -= 1
+            while text[n_end] != "\n" and n_end < len(text):
+                n_end += 1
+            extract = text[n_start:n_end]
+            extract = extract.replace(
+                a["answer"], f'<span class="answer">{a["answer"]}</span>'
+            )
+
+            answers.append(
+                {
+                    "answer": a["answer"],
+                    "url": url,
+                    "score": a["score"],
+                    "extract": extract,
+                }
+            )
 
         answers.sort(reverse=True)
 

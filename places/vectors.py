@@ -12,7 +12,10 @@ from places.utils import task_pool, tokenize_html
 from places.webdb import Pages
 
 
-model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
+_MODEL = "multi-qa-distilbert-cos-v1"
+# _MODEL = 'distiluse-base-multilingual-cased-v1'
+
+model = SentenceTransformer(_MODEL)
 pages_db = Pages("/tmp/pages")
 
 

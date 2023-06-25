@@ -36,6 +36,11 @@ div.answer-url {
   opacity: 1; /* Firefox */
 }
 
+span.answer {
+ background-color: #ffff00;
+ font-weight: bold;
+ padding: 8px;
+}
 </style>
 
 
@@ -62,11 +67,12 @@ div.answer-url {
       </p>
   </form>
 
-    {% for score, answer, url in answers[:1] %}
+    {% for item in answers[:1] %}
       <div class="answer-box">
-          <div class="answer">{{answer}}</div>
+          <div class="answer">{{item['answer']}}</div>
+          <p>{{item['extract']}}</p>
           <hr/>
-          <div class="answer-url">⮕ <a href="{{url}}">{{url}}</url></div>
+          <div class="answer-url">⮕ <a href="{{item['url']}}">{{item['url']}}</url></div>
       </div>
     {% endfor %}
       {% for url, title, sentences in hits %}
