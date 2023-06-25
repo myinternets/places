@@ -16,5 +16,5 @@ def test_build_vector():
     res = json.loads(build_vector(json.dumps(data)))
 
     assert res["sentences"] == ["The title Some text"]
-    assert len(res["vectors"][0]) == 512
+    assert len(res["vectors"][0]) == 768
     assert res["title"] == "The title"
