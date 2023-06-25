@@ -7,12 +7,17 @@ install-cpu:
 	.venv/bin/pip install poetry
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install
+	.venv/bin/python -m nltk.downloader punkt
+	.venv/bin/python -m nltk.downloader bcp47
 
 install:
 	python3 -m venv .venv
 	.venv/bin/pip install poetry
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install
+	.venv/bin/python -m nltk.downloader punkt
+	.venv/bin/python -m nltk.downloader bcp47
+
 
 run-quadrant:
 	docker run --name qdrant -d --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant:v1.2.2
