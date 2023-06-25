@@ -11,7 +11,7 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import should_skip, answer, summarize
+from places.utils import should_skip, answer
 from places.vectors import build_vector, model
 from places.webdb import Pages
 
@@ -128,8 +128,8 @@ async def search(request):
 
             # XXX UGLY
             # grabbing the surroundings of the answer
-            n_start = start = a["start"]
-            n_end = end = a["end"]
+            n_start = a["start"]
+            n_end = a["end"]
             while text[n_start] != "\n" and n_start > 0:
                 n_start -= 1
             while text[n_end] != "\n" and n_end < len(text):
