@@ -42,7 +42,7 @@ class Places:
         skipped_count = 0
         for line in cur.execute("select URL from moz_places"):
             url = line[0]
-            if self.to_skip(url):
+            if should_skip(url, cache=self.cache):
                 skipped_count += 1
                 continue
             self.cache[url] = "processing"
@@ -53,11 +53,3 @@ class Places:
 
         print(f"[places] Collected {url_count} urls. Skipped {skipped_count} urls")
         await self.queue.put("END")
-
-    def to_skip(self, url):
-        if should_skip(url):
-            return True
-        if url in self.cache:
-            if self.cache[url] != "error" and self.cache[url] != "unreadable":
-                return True
-        return False

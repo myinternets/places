@@ -15,23 +15,21 @@ from bs4 import BeautifulSoup
 from transformers import pipeline
 
 from places.lexrank import degree_centrality_scores
+from places.config import URL_SKIP_LIST
 
 
-# TODO: replace this with a sophisticated list
-# (regex, blocklists, patterns etc.)
-_SKIP = (
-    "www.google.com",
-    "compute.amazonaws.com",
-    "www.facebook.com",
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-)
 _QA = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
 
-def should_skip(url):
-    return urlparse(url).hostname in _SKIP
+def should_skip(url, cache=None):
+    url_hostname = urlparse(url).hostname
+    if url_hostname in URL_SKIP_LIST:
+        return True
+    if cache is not None:
+        if url in cache:
+            if cache[url] != "error" and cache[url] != "unreadable":
+                return True
+    return False
 
 
 class Tasks:
