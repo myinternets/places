@@ -1,8 +1,6 @@
-from places.backends._nuclia import NucliaDB
 from places.backends._qdrant import QDrantDB
 from places.backends._vectra import LocalDB
 from places.backends._nuclia import NucliaDB
-from places.backends._vectra import LocalDB
 
 
 def get_db(**kw):
