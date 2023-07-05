@@ -2,8 +2,8 @@ import sys
 
 import numpy
 from sentence_transformers import SentenceTransformer
-
 from places.backends import get_db
+
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 client = get_db(db="qdrant")
