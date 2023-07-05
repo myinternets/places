@@ -1,17 +1,17 @@
 import asyncio
 import functools
+from contextlib import asynccontextmanager
 import os
 import re
-from contextlib import asynccontextmanager
 from functools import cache
 from urllib.parse import urlparse
 
-import fasttext
-import nltk
 import numpy as np
-from bs4 import BeautifulSoup
-from nltk.langnames import langname
 from sentence_transformers import util
+import fasttext
+from nltk.langnames import langname
+import nltk
+from bs4 import BeautifulSoup
 from transformers import pipeline
 
 from places.config import URL_SKIP_LIST
