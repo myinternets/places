@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 from places.backends import get_db
 from places.utils import should_skip, answer
 from places.vectors import build_vector, model
-from places.webdb import Pages
+from places.db import Pages
 
 
 HERE = os.path.dirname(__file__)
