@@ -39,12 +39,12 @@ class NucliaDB:
 
         hits = hits.dict()
 
-        for sentence in hits["sentences"]["results"]:
+        for sentence in hits["paragraphs"]["results"]:
             rid = sentence["rid"]
             resource = hits["resources"][rid]
             url = resource["metadata"].get("metadata", {}).get("url")
             sentence.update(resource)
-            sentence["sentence"] = sentence["text"]
+            sentence["sentence"] = sentence["text"][:200]
             sentence["url"] = url
             yield sentence
 
