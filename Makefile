@@ -1,5 +1,7 @@
 .PHONY: clean run-quadrant index web install build-app run-app test
 
+DB=nuclia
+
 install-cpu:
 	python3 scripts/generate_pytorch_dep_urls.py
 	python3 -m venv .venv
@@ -22,6 +24,9 @@ install:
 run-quadrant:
 	docker run --name qdrant -d --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant:v1.2.2
 
+run-nuclia:
+	docker run --env HTTP_PORT=6333 --name nuclia -d --rm -p 6333:6333 -p 8060:8060 -v storage:/data nuclia/nucliadb:latest
+
 index:
 	.venv/bin/python places/index.py places.sqlite
 
@@ -29,7 +34,7 @@ web:
 	.venv/bin/places web
 
 run-standalone-web:
-	.venv/bin/places web --db vectra
+	.venv/bin/places web --db $(DB)
 
 build-app:
 	docker build -t tarek/places .

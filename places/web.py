@@ -11,10 +11,9 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import should_skip, answer
+from places.utils import answer, should_skip
 from places.vectors import build_vector, model
 from places.webdb import Pages
-
 
 HERE = os.path.dirname(__file__)
 routes = web.RouteTableDef()
@@ -71,16 +70,22 @@ async def index_doc(request):
                 )
             except Exception as e:
                 print("Failed to create a point")
-                return await request.app.json_resp({"error": str(e)}, 400)
+                return await request.app.json_resp(error_to_json(e), 400)
 
             points.append(point)
 
         try:
-            resp = await request.app.client.index(points=points)
+            resp = await request.app.client.index(
+                points=points,
+                title=title,
+                text=data["text"],
+                sentences=sentences,
+                url=url,
+            )
             res = await request.app.json_resp(resp)
         except Exception as e:
             print("Failed to send points to vector db")
-            return await request.app.json_resp({"error": str(e)}, 400)
+            return await request.app.json_resp(error_to_json(e), 400)
 
         return res
 
@@ -97,9 +102,9 @@ async def search(request):
 
     urls = []
 
-    print("Queyring..")
+    print("Querying..")
     for hit in await request.app.query(q):
-        url = hit["url"]
+        url = hit.get("url", "NONE")
         title = hit["title"]
         key = url, title
         sentence = hit["sentence"]
@@ -191,7 +196,9 @@ class PlacesApplication(web.Application):
         vector = numpy.asfarray(embedding[0])
         vector = list(vector)
         hits = []
-        async for hit in self.client.search(query_vector=vector, limit=10):
+        async for hit in self.client.search(
+            query_vector=vector, query=sentence, limit=10
+        ):
             hits.append(hit)
         return hits
 

@@ -14,9 +14,8 @@ import nltk
 from bs4 import BeautifulSoup
 from transformers import pipeline
 
-from places.lexrank import degree_centrality_scores
 from places.config import URL_SKIP_LIST
-
+from places.lexrank import degree_centrality_scores
 
 _QA = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
