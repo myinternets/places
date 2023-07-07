@@ -9,7 +9,7 @@ import ujson
 from sentence_transformers import SentenceTransformer
 
 from places.utils import task_pool, tokenize_html
-from places.webdb import Pages
+from places.db import Pages
 
 
 _MODEL = "multi-qa-distilbert-cos-v1"

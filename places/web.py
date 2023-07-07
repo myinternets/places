@@ -11,9 +11,9 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import should_skip, answer
+from places.utils import answer
 from places.vectors import build_vector, model
-from places.db import Pages
+from places.db import Pages, DB
 
 
 HERE = os.path.dirname(__file__)
@@ -32,7 +32,7 @@ async def index_doc(request):
     try:
         data = await request.json()
         url = data["url"]
-        if should_skip(url):
+        if await request.app.db.get_skip(url):
             print(f"Skipping {url}")
             return await request.app.json_resp({"result": "skipped domain"}, 200)
 
@@ -82,6 +82,7 @@ async def index_doc(request):
             print("Failed to send points to vector db")
             return await request.app.json_resp({"error": str(e)}, 400)
 
+        await request.app.db.indexed(url)
         return res
 
     except Exception as e:
@@ -178,9 +179,11 @@ class PlacesApplication(web.Application):
         self.on_startup.append(self._startup)
         self.on_cleanup.append(self._cleanup)
         self.pages_db = Pages("/tmp/pages")
+        self.db = DB()
 
     async def _startup(self, app):
         self["loop"] = asyncio.get_running_loop()
+        await self.db.check_db()
 
     async def _cleanup(self, app):
         self.executor.shutdown()
