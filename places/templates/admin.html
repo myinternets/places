@@ -8,15 +8,13 @@
     <h1 class="text-grey text-center">Manage My Index</h1>
     <div class="clearfix"></div>
   </header>
-
+  <hr/>
   <h2>Database info</h2>
   <ul>
     <li>Backend: {{db_info['name']}}</li>
     <li>Stored Vectors: {{db_info['vectors_count']}}</li>
   </ul>
-
-  <button>Delete everything</button>
-
+  <button>Wipe</button>
 
   <h2>Indexed domains</h2>
   <ul>
@@ -38,6 +36,7 @@
     {% endfor %}
   </ul>
 
+  <hr/>
   <button onclick="location.href = '/';">Exit</button>
 
 </div>
