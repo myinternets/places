@@ -5,9 +5,18 @@
 <div id="summary" class="container" role="document">
   <header role="banner">
     <h1 class="pull-right" style="margin: 0;">
-    <h1 class="text-grey text-center">Settings</h1>
+    <h1 class="text-grey text-center">Manage My Index</h1>
     <div class="clearfix"></div>
   </header>
+
+  <h2>Database info</h2>
+  <ul>
+    <li>Backend: {{db_info['name']}}</li>
+    <li>Stored Vectors: {{db_info['vectors_count']}}</li>
+  </ul>
+
+  <button>Delete everything</button>
+
 
   <h2>Indexed domains</h2>
   <ul>
