@@ -182,6 +182,28 @@ async def admin(request):
     return await request.app.html_resp("admin.html", **args)
 
 
+@routes.get("/remove_index")
+async def remove_index(request):
+    domain = request.rel_url.query["domain"]
+    await request.app.db.set_skip(domain, True)
+    # TODO: remove indexed content...
+    raise web.HTTPFound("/admin")
+
+
+@routes.get("/remove_skip")
+async def remove_skip(request):
+    domain = request.rel_url.query["domain"]
+    await request.app.db.set_skip(domain, False)
+    raise web.HTTPFound("/admin")
+
+
+@routes.get("/domain_info")
+async def info(request):
+    url = request.rel_url.query["url"]
+    res = await request.app.db.domain_info(url)
+    return web.json_response(res)
+
+
 @routes.get("/")
 async def index(request):
     args = {
