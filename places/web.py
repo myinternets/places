@@ -11,13 +11,14 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import should_skip, answer
+from places.utils import answer
 from places.vectors import build_vector, model
-from places.webdb import Pages
+from places.db import Pages, DB
 
 
 HERE = os.path.dirname(__file__)
 routes = web.RouteTableDef()
+STATIC = os.path.join(HERE, "static")
 
 
 def error_to_json(e):
@@ -32,7 +33,7 @@ async def index_doc(request):
     try:
         data = await request.json()
         url = data["url"]
-        if should_skip(url):
+        if await request.app.db.get_skip(url):
             print(f"Skipping {url}")
             return await request.app.json_resp({"result": "skipped domain"}, 200)
 
@@ -82,6 +83,7 @@ async def index_doc(request):
             print("Failed to send points to vector db")
             return await request.app.json_resp({"error": str(e)}, 400)
 
+        await request.app.db.indexed(url)
         return res
 
     except Exception as e:
@@ -159,6 +161,49 @@ async def search(request):
     return await request.app.html_resp("index.html", **args)
 
 
+@routes.get("/admin")
+async def admin(request):
+    indexed = []
+    async for domain in request.app.db.get_indexed_domains():
+        indexed.append(domain)
+
+    skipped = []
+    async for domain in request.app.db.get_skipped_domains():
+        skipped.append(domain)
+
+    args = {
+        "args": {"title": "My Internets"},
+        "description": "Search Your History",
+        "answers": [],
+        "indexed": indexed,
+        "skipped": skipped,
+    }
+
+    return await request.app.html_resp("admin.html", **args)
+
+
+@routes.get("/remove_index")
+async def remove_index(request):
+    domain = request.rel_url.query["domain"]
+    await request.app.db.set_skip(domain, True)
+    # TODO: remove indexed content...
+    raise web.HTTPFound("/admin")
+
+
+@routes.get("/remove_skip")
+async def remove_skip(request):
+    domain = request.rel_url.query["domain"]
+    await request.app.db.set_skip(domain, False)
+    raise web.HTTPFound("/admin")
+
+
+@routes.get("/domain_info")
+async def info(request):
+    url = request.rel_url.query["url"]
+    res = await request.app.db.domain_info(url)
+    return web.json_response(res)
+
+
 @routes.get("/")
 async def index(request):
     args = {
@@ -178,9 +223,11 @@ class PlacesApplication(web.Application):
         self.on_startup.append(self._startup)
         self.on_cleanup.append(self._cleanup)
         self.pages_db = Pages("/tmp/pages")
+        self.db = DB()
 
     async def _startup(self, app):
         self["loop"] = asyncio.get_running_loop()
+        await self.db.check_db()
 
     async def _cleanup(self, app):
         self.executor.shutdown()
@@ -232,6 +279,7 @@ def main(args):
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
     app = PlacesApplication(args)
     app.add_routes(routes)
+    app.add_routes([web.static("/static", STATIC)])
     app.init_db()
     print("Starting semantic bookmarks server...")
     web.run_app(app, port=8080)

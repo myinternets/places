@@ -2,49 +2,6 @@
 
 {% block body %}
 
-<style>
-#brand {
-  transition: transform .7s ease-in-out;
-}
-#brand:hover {
-  transform: rotate(360deg);
-}
-pre {
-    white-space: pre-wrap;
-}
-
-div.answer-box {
- padding: 20px;
- border: 1px solid #c2c2c2;
- border-radius: 5px;
- margin-bottom: 10px;
-}
-
-div.answer {
- font-size: 120%;
- font-weight: bold;
- margin-bottom: 35px;
-
-}
-div.answer-url {
- font-size: 80%;
- font-style: italic;
-}
-
-::placeholder {
-  color: grey;
-  opacity: 1; /* Firefox */
-}
-
-span.answer {
- background-color: #ffff00;
- font-weight: bold;
- padding: 8px;
-}
-</style>
-
-
-
 <div id="summary" class="container" role="document">
   <header role="banner">
     <h1 class="pull-right" style="margin: 0;">
@@ -90,11 +47,4 @@ span.answer {
       </div>
       {% endfor %}
 </div>
-<footer class="text-grey text-center">
- <hr>
- DB: {{db_info['name']}} | Vectors: {{db_info['vectors_count']}}
- {%if db_info['name'] == 'QDrant' %}
- | <a href="https://ui.qdrant.tech">Dashboard</a>
- {% endif %}
-</footer>
 {% endblock body %}
