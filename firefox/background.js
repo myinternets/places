@@ -4,7 +4,9 @@ browser.omnibox.setDefaultSuggestion({
 
 
 browser.omnibox.onInputEntered.addListener((text, disposition) => {
-  let url = `http://localhost:8080/search?q=${text}`;
+  browser.storage.sync.get("server", function (result) {
+  let url = `${result.server}/search?q=${text}`;
+
   switch (disposition) {
     case "currentTab":
       browser.tabs.update({url});
@@ -16,13 +18,17 @@ browser.omnibox.onInputEntered.addListener((text, disposition) => {
       browser.tabs.create({url, active: false});
       break;
   }
+  });
+
 });
 
 
-
 async function postJSON(data) {
+  let server = (await browser.storage.sync.get("server"))['server'];
+  let url = `${server}/index`;
+
   try {
-    const response = await fetch("http://localhost:8080/index", {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
