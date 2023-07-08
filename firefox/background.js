@@ -1,3 +1,25 @@
+browser.omnibox.setDefaultSuggestion({
+  description: `Search Your History. Finish with a question mark (?) to get an answer`
+});
+
+
+browser.omnibox.onInputEntered.addListener((text, disposition) => {
+  let url = `http://localhost:8080/search?q=${text}`;
+  switch (disposition) {
+    case "currentTab":
+      browser.tabs.update({url});
+      break;
+    case "newForegroundTab":
+      browser.tabs.create({url});
+      break;
+    case "newBackgroundTab":
+      browser.tabs.create({url, active: false});
+      break;
+  }
+});
+
+
+
 async function postJSON(data) {
   try {
     const response = await fetch("http://localhost:8080/index", {
