@@ -3,6 +3,13 @@
   "name": "Places",
   "version": "0.0.1",
 
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "places@ziade.org",
+      "strict_min_version": "42.0"
+    }
+  },
+
   "description": "Search Your Browser History.",
 
   "permissions": [
@@ -11,8 +18,13 @@
     "webRequest",
     "webRequestBlocking",
     "activeTab",
+    "notifications",
     "<all_urls>"
   ],
+
+  "options_ui": {
+    "page": "options.html"
+  },
 
   "omnibox": {
     "keyword": "places"

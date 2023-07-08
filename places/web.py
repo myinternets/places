@@ -78,6 +78,11 @@ async def index_doc(request):
 
         try:
             resp = await request.app.client.index(points=points)
+            resp = [json.loads(item) for item in resp]
+            resp = {
+                "backend_resp": resp,
+                "message": f"Vectorized {len(sentences)} sentences",
+            }
             res = await request.app.json_resp(resp)
         except Exception as e:
             print("Failed to send points to vector db")

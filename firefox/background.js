@@ -4,7 +4,9 @@ browser.omnibox.setDefaultSuggestion({
 
 
 browser.omnibox.onInputEntered.addListener((text, disposition) => {
-  let url = `http://localhost:8080/search?q=${text}`;
+  browser.storage.sync.get("server", function (result) {
+  let url = `${result.server}/search?q=${text}`;
+
   switch (disposition) {
     case "currentTab":
       browser.tabs.update({url});
@@ -16,13 +18,25 @@ browser.omnibox.onInputEntered.addListener((text, disposition) => {
       browser.tabs.create({url, active: false});
       break;
   }
+  });
+
 });
 
-
+function notify(message) {
+  browser.notifications.create('places', {
+    "type": "basic",
+    "iconUrl": browser.extension.getURL("icons/magnifying_glass_16.png"),
+    "title": "Places",
+    "message": "message"
+  });
+}
 
 async function postJSON(data) {
+  let server = (await browser.storage.sync.get("server"))['server'];
+  let url = `${server}/index`;
+
   try {
-    const response = await fetch("http://localhost:8080/index", {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -30,7 +44,18 @@ async function postJSON(data) {
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
+   const result = await response.json();
+
+   chrome.notifications.create('places', {
+    "type": "basic",
+    "iconUrl": browser.extension.getURL("icons/magnifying_glass_16.png"),
+    "title": "Places",
+    "message": result.message,
+    "priority": 2
+  },
+   function(id) { console.log("Last error:", chrome.runtime.lastError); }
+);
+
     console.log("Success:", result);
   } catch (error) {
     console.error("Error:", error);
