@@ -18,6 +18,7 @@
     "webRequest",
     "webRequestBlocking",
     "activeTab",
+    "notifications",
     "<all_urls>"
   ],
 

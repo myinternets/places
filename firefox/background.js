@@ -22,6 +22,14 @@ browser.omnibox.onInputEntered.addListener((text, disposition) => {
 
 });
 
+function notify(message) {
+  browser.notifications.create('places', {
+    "type": "basic",
+    "iconUrl": browser.extension.getURL("icons/magnifying_glass_16.png"),
+    "title": "Places",
+    "message": "message"
+  });
+}
 
 async function postJSON(data) {
   let server = (await browser.storage.sync.get("server"))['server'];
@@ -36,7 +44,18 @@ async function postJSON(data) {
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
+   const result = await response.json();
+
+   chrome.notifications.create('places', {
+    "type": "basic",
+    "iconUrl": browser.extension.getURL("icons/magnifying_glass_16.png"),
+    "title": "Places",
+    "message": result.message,
+    "priority": 2
+  },
+   function(id) { console.log("Last error:", chrome.runtime.lastError); }
+);
+
     console.log("Success:", result);
   } catch (error) {
     console.error("Error:", error);
