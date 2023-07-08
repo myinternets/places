@@ -77,9 +77,27 @@ class DB:
             print(f"Adding {url} to skip list")
             await self.set_skip(url)
 
+    async def get_skipped_domains(self):
+        async with self.session() as db:
+            cursor = await db.execute("SELECT * from domain WHERE skip=1")
+            async for row in cursor:
+                domain, __, indexed_pages = row
+
+                yield {"domain": domain, "skip": True, "indexed_pages": indexed_pages}
+
+    async def get_indexed_domains(self):
+        async with self.session() as db:
+            cursor = await db.execute(
+                "SELECT * from domain WHERE skip = 0 AND indexed_pages > 0 ORDER BY indexed_pages DESC"
+            )
+            async for row in cursor:
+                domain, __, indexed_pages = row
+
+                yield {"domain": domain, "skip": False, "indexed_pages": indexed_pages}
+
     def get_domain(self, url):
         if url.startswith("http"):
-            return urlparse(url).netloc
+            return urlparse(url).hostname
         return url
 
     async def set_skip(self, url, skip=True):

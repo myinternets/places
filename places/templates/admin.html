@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div id="summary" class="container" role="document">
+  <header role="banner">
+    <h1 class="pull-right" style="margin: 0;">
+    <h1 class="text-grey text-center">Settings</h1>
+    <div class="clearfix"></div>
+  </header>
+
+  <h2>Indexed domains</h2>
+  <ul>
+    {% for domain in indexed %}
+    <li>{{domain['domain']}}: {{domain['indexed_pages']}} pages.
+    <a class="tooltip" href="/remove_index?domain={{domain['domain']}}">⛔️<span
+            class="tooltiptext">Remove from index and add to skiplist</span></a></li>
+
+    </li>
+    {% endfor %}
+  </ul>
+
+  <h2>Skipped domains</h2>
+  <ul>
+    {% for domain in skipped %}
+    <li>{{domain['domain']}}
+
+    <a class="tooltip" href="/remove_skip?domain={{domain['domain']}}">⛔️<span class="tooltiptext">Remove from skiplist</span></a></li>
+    {% endfor %}
+  </ul>
+
+  <button onclick="location.href = '/';">Exit</button>
+
+</div>
+
+{% endblock body %}

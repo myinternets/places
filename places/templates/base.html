@@ -6,6 +6,7 @@
   <title>{{ args.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/chota@latest">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 {% block content %}
@@ -13,6 +14,15 @@
   {% block body %}
 
   {% endblock body %}
+  <footer class="text-grey text-center">
+  <hr>
+  DB: {{db_info['name']}} | Vectors: {{db_info['vectors_count']}}
+  {%if db_info['name'] == 'QDrant' %}
+  | <a href="https://ui.qdrant.tech">Dashboard</a>
+  {% endif %}
+  | <a href="/admin">Admin</a>
+  </footer>
+
 </body>
 {% endblock content %}
 

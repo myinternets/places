@@ -18,6 +18,7 @@ from places.db import Pages, DB
 
 HERE = os.path.dirname(__file__)
 routes = web.RouteTableDef()
+STATIC = os.path.join(HERE, "static")
 
 
 def error_to_json(e):
@@ -160,6 +161,27 @@ async def search(request):
     return await request.app.html_resp("index.html", **args)
 
 
+@routes.get("/admin")
+async def admin(request):
+    indexed = []
+    async for domain in request.app.db.get_indexed_domains():
+        indexed.append(domain)
+
+    skipped = []
+    async for domain in request.app.db.get_skipped_domains():
+        skipped.append(domain)
+
+    args = {
+        "args": {"title": "My Internets"},
+        "description": "Search Your History",
+        "answers": [],
+        "indexed": indexed,
+        "skipped": skipped,
+    }
+
+    return await request.app.html_resp("admin.html", **args)
+
+
 @routes.get("/")
 async def index(request):
     args = {
@@ -235,6 +257,7 @@ def main(args):
     logging.getLogger("asyncio").setLevel(logging.DEBUG)
     app = PlacesApplication(args)
     app.add_routes(routes)
+    app.add_routes([web.static("/static", STATIC)])
     app.init_db()
     print("Starting semantic bookmarks server...")
     web.run_app(app, port=8080)
