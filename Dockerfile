@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
     python3-pip \
+    libpoppler-cpp-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # upgrade pip

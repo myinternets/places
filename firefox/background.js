@@ -46,16 +46,17 @@ async function postJSON(data) {
 
    const result = await response.json();
 
-   chrome.notifications.create('places', {
-    "type": "basic",
-    "iconUrl": browser.runtime.getURL("icons/magnifying_glass_16.png"),
-    "title": "Places",
-    "message": result.message,
-    "priority": 2
-  },
-   function(id) { console.log("Last error:", chrome.runtime.lastError); }
-);
-
+   if (result.message) {
+     chrome.notifications.create('places', {
+       "type": "basic",
+       "iconUrl": browser.runtime.getURL("icons/magnifying_glass_16.png"),
+       "title": "Places",
+       "message": result.message,
+       "priority": 2
+    },
+    function(id) { console.log("Last error:", chrome.runtime.lastError); }
+    );
+  }
     console.log("Success:", result);
   } catch (error) {
     console.error("Error:", error);
@@ -93,3 +94,29 @@ function openPage() {
 }
 
 browser.browserAction.onClicked.addListener(openPage);
+
+function logDownloads(downloads) {
+  for (const download of downloads) {
+    console.log(download.id);
+    console.log(download.url);
+    console.log(download.filename);
+    postJSON({
+      url: download.url,
+      filename: download.filename
+    });
+  }
+}
+
+function onError(error) {
+  console.log(`Error: ${error}`);
+}
+
+function handleChanged(delta) {
+  if (delta.state && delta.state.current === "complete") {
+    const id = delta.id;
+    browser.downloads.search({ id }).then(logDownloads, onError);
+  }
+}
+
+browser.downloads.onChanged.addListener(handleChanged);
+
