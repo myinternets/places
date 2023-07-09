@@ -25,7 +25,7 @@ browser.omnibox.onInputEntered.addListener((text, disposition) => {
 function notify(message) {
   browser.notifications.create('places', {
     "type": "basic",
-    "iconUrl": browser.extension.getURL("icons/magnifying_glass_16.png"),
+    "iconUrl": browser.runtime.getURL("icons/magnifying_glass_16.png"),
     "title": "Places",
     "message": "message"
   });
@@ -48,7 +48,7 @@ async function postJSON(data) {
 
    chrome.notifications.create('places', {
     "type": "basic",
-    "iconUrl": browser.extension.getURL("icons/magnifying_glass_16.png"),
+    "iconUrl": browser.runtime.getURL("icons/magnifying_glass_16.png"),
     "title": "Places",
     "message": result.message,
     "priority": 2

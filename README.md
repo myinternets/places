@@ -65,7 +65,7 @@ Note: default install uses GPU, if you don't have one, you can change it to `mak
 
 ### Installing the web extension (Firefox)
 
-Use a pre-release [open me in Firefox](https://github.com/myinternets/places/releases/download/0.0.1-SNAPSHOT/places-0.0.1.xpi)
+Use a pre-release [open me in Firefox](https://github.com/myinternets/places/releases/download/v0.0.4/places@ziade.org.xpi)
 
 Alternatively, you can install a temporary extension. Open `about:debugging` in
 your browser and load a temporary extension in "This Firefox" -- you can browse
