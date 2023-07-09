@@ -19,7 +19,8 @@
     "webRequestBlocking",
     "activeTab",
     "notifications",
-    "<all_urls>"
+    "<all_urls>",
+    "downloads"
   ],
 
   "options_ui": {

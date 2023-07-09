@@ -11,7 +11,7 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import answer
+from places.utils import answer, extract_text
 from places.vectors import build_vector, model
 from places.db import Pages, DB
 
@@ -36,6 +36,11 @@ async def index_doc(request):
         if await request.app.db.get_skip(url):
             print(f"Skipping {url}")
             return await request.app.json_resp({"result": "skipped domain"}, 200)
+
+        # is this a filename ?
+        if "filename" in data:
+            # only works locally
+            data["text"] = extract_text(data["filename"])
 
         # storing the page
         request.app.pages_db.set(url, {"html": data["text"]})

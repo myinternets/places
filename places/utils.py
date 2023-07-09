@@ -21,6 +21,19 @@ from places.config import URL_SKIP_LIST
 _QA = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
 
+def extract_text(filename):
+    if not filename.endswith(".pdf"):
+        print(f"Skipping {filename}, extension not supported")
+    # use pdf2text and others, so we don't blow the mem
+    # return text
+    import pdftotext
+
+    print(f"Extracting {filename}")
+    with open(filename, "rb") as f:
+        pdf = pdftotext.PDF(f)
+        return "\n\n".join(pdf).strip()
+
+
 def should_skip(url, cache=None):
     url_hostname = urlparse(url).hostname
     if url_hostname in URL_SKIP_LIST:
