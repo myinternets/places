@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import time
 import traceback as tb
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor
@@ -101,7 +102,6 @@ async def index_doc(request):
         return await request.app.json_resp(error_to_json(e), 400)
 
 
-# XXX control growth
 _ANSWERS = {}
 
 
@@ -115,12 +115,9 @@ async def search(request):
     urls = []
 
     print("Queyring..")
-    first_url = None
 
     for hit in await request.app.query(q):
         url = hit["url"]
-        if first_url is None:
-            first_url = url
         title = hit["title"]
         key = url, title
         sentence = hit["sentence"]
@@ -135,14 +132,16 @@ async def search(request):
 
     hits = [list(k) + [sentences] for k, sentences in res.items()]
 
-    # answers could be built asynchronously and update the page after
-    # it's expensive!
-
-    if question and len(hits) > 0:
+    if question and len(urls) > 0:
         uuid = str(uuid4())
-        text = request.app.pages_db.get(first_url)["text"]
+        url = urls[0]
+        text = request.app.pages_db.get(url)["text"]
 
-        # trigger task
+        # keep only the last ten entries
+        if len(_ANSWERS) > 10:
+            oldest_key = next(iter(_ANSWERS))
+            del _ANSWERS[oldest_key]
+
         _ANSWERS[uuid] = request.app.task_executor(build_answer, url, q, text)
         print(f"answer id {uuid}")
     else:
@@ -162,11 +161,16 @@ async def search(request):
 async def answer(request):
     uuid = request.match_info["uuid"]
 
-    while uuid not in _ANSWERS:
-        # XXX timeout
+    start = time.time()
+    while uuid not in _ANSWERS and (time.time() - start < 30):
         await asyncio.sleep(0.1)
 
     task = _ANSWERS.get(uuid)
+    if task is None:
+        return await request.app.json_resp(
+            {"url": "url", "extract": "N/A", "answer": "Nothing found"}
+        )
+
     if isinstance(task, dict):
         return await request.app.json_resp(task)
 
