@@ -115,12 +115,9 @@ async def search(request):
     urls = []
 
     print("Queyring..")
-    first_url = None
 
     for hit in await request.app.query(q):
         url = hit["url"]
-        if first_url is None:
-            first_url = url
         title = hit["title"]
         key = url, title
         sentence = hit["sentence"]
@@ -135,9 +132,10 @@ async def search(request):
 
     hits = [list(k) + [sentences] for k, sentences in res.items()]
 
-    if question and len(hits) > 0:
+    if question and len(urls) > 0:
         uuid = str(uuid4())
-        text = request.app.pages_db.get(first_url)["text"]
+        url = urls[0]
+        text = request.app.pages_db.get(url)["text"]
 
         # keep only the last ten entries
         if len(_ANSWERS) > 10:
