@@ -115,8 +115,12 @@ async def search(request):
     urls = []
 
     print("Queyring..")
+    first_url = None
+
     for hit in await request.app.query(q):
         url = hit["url"]
+        if first_url is None:
+            first_url = url
         title = hit["title"]
         key = url, title
         sentence = hit["sentence"]
@@ -134,9 +138,9 @@ async def search(request):
     # answers could be built asynchronously and update the page after
     # it's expensive!
 
-    if question:
+    if question and len(hits) > 0:
         uuid = str(uuid4())
-        text = request.app.pages_db.get(url)["text"]
+        text = request.app.pages_db.get(first_url)["text"]
 
         # trigger task
         _ANSWERS[uuid] = request.app.task_executor(build_answer, url, q, text)
