@@ -2,36 +2,75 @@
 
 {% block body %}
 
+<script>
+
+function get_answer(uuid) {
+  fetch(`http://localhost:8080/answer/${uuid}`).then(
+    response => response.json()
+  ).then(jsonResponse => {
+    console.log(jsonResponse);
+    document.getElementById('answer-answer').textContent = jsonResponse.answer;
+    document.getElementById('answer-extract').innerHTML = jsonResponse.extract;
+    document.getElementById('answer-url').href = jsonResponse.url;
+    document.getElementById('answer-url').innerHTML = jsonResponse.url;
+    document.getElementById('answer').style.display = "initial";
+    document.getElementById('answer-anime').style.display = "none";
+  });
+}
+
+</script>
+
 <div id="summary" class="container" role="document">
+   <a style="float: right;color: black" href="/admin">
+     <img src="https://icongr.am/entypo/sound-mix.svg?size=32&color=929292" style="vertical-align:middle"/>
+   </a>
+
   <header role="banner">
     <h1 class="pull-right" style="margin: 0;">
-    <h1 class="text-grey text-center">⚡️ My Internets</h1>
+
+    <h1 class="text-grey text-center">
+      <img style="vertical-align:middle"
+         src="https://icongr.am/entypo/funnel.svg?size=32&color=929292"
+      />
+
+
+      My Internets</h1>
     <div class="clearfix"></div>
   </header>
 
   <form action="/search" method="get">
-      <p class="grouped">
-                <input
-                  type="search"
-                  name="q"
-                  id="q"
-                  placeholder="Search Your History. Finish with a question mark (`?`) to get an answer."
-          value="{{query}}" autofocus
-          />
-                <button class="button icon-only">
+    <p class="grouped">
+      <input
+        type="search"
+        name="q"
+        id="q"
+        placeholder="Search Your History. Finish with a question mark (`?`) to get an answer."
+value="{{query}}" autofocus
+/>
+      <button class="button icon-only">
                   <img src="https://icongr.am/feather/search.svg?size=16" />
                 </button>
-      </p>
+    </p>
   </form>
-
-    {% for item in answers[:1] %}
+  {% if answer_uuid %}
       <div class="answer-box">
-          <div class="answer">{{item['answer']}}</div>
-          <p>{{item['extract']}}</p>
-          <hr/>
-          <div class="answer-url">⮕ <a href="{{item['url']}}">{{item['url']}}</url></div>
+        <div id="answer" style="display: none">
+        <div class="answer"><img style="vertical-align:middle"
+                                 src="https://icongr.am/entypo/info.svg?size=17&color=929292"/>
+          <span id="answer-answer">answer</span>
+        </div>
+        <p id="answer-extract"></p>
+        <hr/>
+        <div class="answer-url">⮕ <a href="URL" id="answer-url">URL</a></div>
+        </div>
+
+      <img id="answer-anime" src="/static/circles-menu-1.gif"></img>
+      <script>
+        get_answer("{{answer_uuid}}");
+      </script>
+
       </div>
-    {% endfor %}
+   {% endif %}
       {% for url, title, sentences in hits %}
 
       <div class="row">

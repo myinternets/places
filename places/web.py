@@ -5,13 +5,14 @@ import os
 import traceback as tb
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor
+from uuid import uuid4
 
 import numpy
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
-from places.utils import answer, extract_text
+from places.utils import extract_text, build_answer
 from places.vectors import build_vector, model
 from places.db import Pages, DB
 
@@ -100,6 +101,10 @@ async def index_doc(request):
         return await request.app.json_resp(error_to_json(e), 400)
 
 
+# XXX control growth
+_ANSWERS = {}
+
+
 @routes.get("/search")
 async def search(request):
     q = request.query["q"].strip()
@@ -110,8 +115,12 @@ async def search(request):
     urls = []
 
     print("Queyring..")
+    first_url = None
+
     for hit in await request.app.query(q):
         url = hit["url"]
+        if first_url is None:
+            first_url = url
         title = hit["title"]
         key = url, title
         sentence = hit["sentence"]
@@ -128,47 +137,48 @@ async def search(request):
 
     # answers could be built asynchronously and update the page after
     # it's expensive!
-    answers = []
 
-    if question:
-        # XXX building just the first one
-        for url in urls[:1]:
-            print(f"Building answer for {url}")
-            text = request.app.pages_db.get(url)["text"]
-            a = answer(q, text)
+    if question and len(hits) > 0:
+        uuid = str(uuid4())
+        text = request.app.pages_db.get(first_url)["text"]
 
-            # XXX UGLY
-            # grabbing the surroundings of the answer
-            n_start = a["start"]
-            n_end = a["end"]
-            while text[n_start] != "\n" and n_start > 0:
-                n_start -= 1
-            while text[n_end] != "\n" and n_end < len(text):
-                n_end += 1
-            extract = text[n_start:n_end]
-            extract = extract.replace(
-                a["answer"], f'<span class="answer">{a["answer"]}</span>'
-            )
-
-            answers.append(
-                {
-                    "answer": a["answer"],
-                    "url": url,
-                    "score": a["score"],
-                    "extract": extract,
-                }
-            )
-
-        answers.sort(reverse=True)
+        # trigger task
+        _ANSWERS[uuid] = request.app.task_executor(build_answer, url, q, text)
+        print(f"answer id {uuid}")
+    else:
+        uuid = None
 
     args = {
         "args": {"title": "My Internets"},
         "description": "Search Your History",
         "hits": hits,
-        "answers": answers,
         "query": q,
+        "answer_uuid": uuid,
     }
     return await request.app.html_resp("index.html", **args)
+
+
+@routes.get("/answer/{uuid}")
+async def answer(request):
+    uuid = request.match_info["uuid"]
+
+    while uuid not in _ANSWERS:
+        # XXX timeout
+        await asyncio.sleep(0.1)
+
+    task = _ANSWERS.get(uuid)
+    if isinstance(task, dict):
+        return await request.app.json_resp(task)
+
+    await task
+
+    if task.exception() is not None:
+        raise task.exception()
+
+    data = task.result()
+    _ANSWERS[uuid] = data
+
+    return await request.app.json_resp(data)
 
 
 @routes.get("/admin")
@@ -274,6 +284,9 @@ class PlacesApplication(web.Application):
         resp.headers["Content-Type"] = "application/json"
         resp.set_status(status)
         return resp
+
+    def task_executor(self, function, *args, **kw):
+        return self["loop"].run_in_executor(self.executor, function, *args, **kw)
 
     async def run_in_executor(self, function, *args, **kw):
         task = self["loop"].run_in_executor(self.executor, function, *args, **kw)

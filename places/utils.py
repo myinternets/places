@@ -169,3 +169,24 @@ def tokenize_html(html):
 @cache
 def answer(question, context):
     return _QA(context=context, question=question)
+
+
+def build_answer(url, question, text):
+    print(f"Building answer for {url}")
+    a = answer(question, text)
+    # XXX UGLY
+    # grabbing the surroundings of the answer
+    n_start = a["start"]
+    n_end = a["end"]
+    while text[n_start] != "\n" and n_start > 0:
+        n_start -= 1
+    while text[n_end] != "\n" and n_end < len(text):
+        n_end += 1
+    extract = text[n_start:n_end]
+    extract = extract.replace(a["answer"], f'<span class="answer">{a["answer"]}</span>')
+    return {
+        "answer": a["answer"],
+        "url": url,
+        "score": a["score"],
+        "extract": extract,
+    }
