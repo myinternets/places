@@ -1,16 +1,15 @@
 import functools
 import json
+import time
 import traceback as tb
 from multiprocessing import current_process
-import time
 
 import aiohttp
 import ujson
 from sentence_transformers import SentenceTransformer
 
-from places.utils import task_pool, tokenize_html
 from places.db import Pages
-
+from places.utils import task_pool, tokenize_html
 
 _MODEL = "multi-qa-distilbert-cos-v1"
 # _MODEL = 'distiluse-base-multilingual-cased-v1'

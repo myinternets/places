@@ -1,12 +1,13 @@
 import asyncio
-import os
 import hashlib
 import json
+import os
 import time
-from urllib.parse import urlparse
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 
 import aiosqlite
+
 from places.config import URL_SKIP_LIST
 
 

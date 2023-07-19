@@ -1,32 +1,30 @@
-<!DOCTYPE html>
-<html lang="en" style="height:100%">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <title>{{ args.title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/chota@latest">
-  <link rel="stylesheet" href="/static/style.css">
-  <link rel="icon" type="image/x-icon"
-                   href="https://icongr.am/entypo/funnel.svg?size=17&color=929292">
+<!doctype html>
+<html lang="en" style="height: 100%">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>{{ args.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/chota@latest" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://icongr.am/entypo/funnel.svg?size=17&color=929292"
+    />
+    <script src="/static/places.js"></script>
+  </head>
 
-</head>
-
-{% block content %}
-<body style="height:100%">
-  {% block body %}
-
-  {% endblock body %}
-  <footer class="text-grey text-center">
-  <hr>
-  DB: {{db_info['name']}} | Vectors: {{db_info['vectors_count']}}
-  {%if db_info['name'] == 'QDrant' %}
-  | <a href="https://ui.qdrant.tech">QDrant Dashboard</a>
-  {% endif %}
-  | <a href="/admin">Manage my index</a>
-  </footer>
-
-</body>
-{% endblock content %}
-
+  {% block content %}
+  <body style="height: 100%">
+    {% block body %} {% endblock body %}
+    <footer class="text-grey text-center">
+      <hr />
+      DB: {{db_info['name']}} | Vectors: {{db_info['vectors_count']}} {%if
+      db_info['name'] == 'QDrant' %} |
+      <a href="https://ui.qdrant.tech">QDrant Dashboard</a> {% endif %} |
+      <a href="/admin">Manage my index</a>
+    </footer>
+  </body>
+  {% endblock content %}
 </html>
