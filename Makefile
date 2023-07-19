@@ -29,7 +29,7 @@ web:
 	.venv/bin/places web
 
 run-standalone-web:
-	.venv/bin/places web --db vectra
+	.venv/bin/places web --db qdrant
 
 build-app:
 	docker build -t tarek/places .

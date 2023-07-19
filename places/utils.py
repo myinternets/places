@@ -1,22 +1,21 @@
 import asyncio
 import functools
-from contextlib import asynccontextmanager
 import os
 import re
+from contextlib import asynccontextmanager
 from functools import cache
 from urllib.parse import urlparse
 
-import numpy as np
-from sentence_transformers import util
 import fasttext
-from nltk.langnames import langname
 import nltk
+import numpy as np
 from bs4 import BeautifulSoup
+from nltk.langnames import langname
+from sentence_transformers import util
 from transformers import pipeline
 
-from places.lexrank import degree_centrality_scores
 from places.config import URL_SKIP_LIST
-
+from places.lexrank import degree_centrality_scores
 
 _QA = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
