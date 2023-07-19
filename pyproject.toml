@@ -12,8 +12,6 @@ authors = ["Tarek Ziadé <tarek@ziade.org>"]
 python = ">= 3.10, < 3.12"
 
 bs4 = "^0.0.1"
-torch = "^2.0.1+cpu"
-torchvision = "^0.15.2+cpu"
 sentence-transformers = "^2.2.2"
 numpy = "^1.24.3"
 aiohttp = "^3.8.4"
