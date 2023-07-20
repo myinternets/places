@@ -21,16 +21,6 @@ RUN pip install --no-cache-dir --upgrade pip
 RUN mkdir -p /app
 WORKDIR /app
 
-# copy scripts/generate_pytorch_dep_urls.py
-COPY scripts/generate_pytorch_dep_urls.py /app/scripts/
-RUN python scripts/generate_pytorch_dep_urls.py
-
-# CPU-specific pytorch hack to prevent bloated image
-# Else it ends up installing CUDA libs on a CPU only arch
-# TODO: have an option to use GPU libs when available
-RUN --mount=type=cache,target=/home/.cache/pip \
-    pip install --no-cache-dir -r torch-requirements.txt
-
 # install poetry
 RUN --mount=type=cache,target=/home/.cache/pip \
     pip install --no-cache-dir poetry \
@@ -43,6 +33,17 @@ COPY poetry.toml pyproject.toml /app/
 RUN --mount=type=cache,target=/home/.cache/pypoetry/cache \
     --mount=type=cache,target=/home/.cache/pypoetry/artifacts \
     poetry install --only main --no-interaction --no-ansi
+
+# poetry busts pytorch so we install it *after*
+# copy scripts/generate_pytorch_dep_urls.py
+COPY scripts/generate_pytorch_dep_urls.py /app/scripts/
+RUN python scripts/generate_pytorch_dep_urls.py
+
+# CPU-specific pytorch hack to prevent bloated image
+# Else it ends up installing CUDA libs on a CPU only arch
+# TODO: have an option to use GPU libs when available
+RUN --mount=type=cache,target=/home/.cache/pip \
+    pip install --no-cache-dir -r torch-requirements.txt
 
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/share
