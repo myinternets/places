@@ -34,7 +34,9 @@ run-standalone-web:
 build-app:
 	- docker buildx create --name builder
 	- docker buildx use builder
-	docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64,linux/arm64 .
+	docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64 .
+	#docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64,linux/arm64 .
+
 
 run-app:
 	docker compose up -d

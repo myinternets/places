@@ -20,6 +20,8 @@ def generate_torch_url(package_name, version):
     if os_name == 'darwin':
         os_name = 'macosx_10_9' if arch == 'x86_64' else 'macosx_11_0'
 
+    print(f"arch={arch} os={os_name}")
+
     base_url = "https://download.pytorch.org/whl/cpu"
 
     if package_name == "torch":
