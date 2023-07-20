@@ -20,7 +20,13 @@
     {% block body %} {% endblock body %}
     <footer class="text-grey text-center">
       <hr />
-      DB: {{db_info['name']}} | Vectors: {{db_info['vectors_count']}} {%if
+      {% if not webext_version %}
+      <a
+        href="https://github.com/myinternets/places/releases/download/v0.0.4/places@ziade.org.xpi"
+        >Install web extension</a
+      >
+      {% else %} Web extension v{{webext_version}} {% endif %} | DB:
+      {{db_info['name']}} | Vectors: {{db_info['vectors_count']}} {%if
       db_info['name'] == 'QDrant' %} |
       <a href="https://ui.qdrant.tech">QDrant Dashboard</a> {% endif %} |
       <a href="/admin">Manage my index</a>

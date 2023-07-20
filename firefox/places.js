@@ -6,5 +6,9 @@ if (document.readyState !== "complete") {
 
 function afterWindowLoaded() {
   var page = "<html>" + document.documentElement.innerHTML + "</html>";
-  browser.runtime.sendMessage({ url: window.location.href, text: page });
+  browser.runtime.sendMessage({
+    url: window.location.href,
+    text: page,
+    webext_version: "0.4.0",
+  });
 }
