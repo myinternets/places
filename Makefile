@@ -3,8 +3,8 @@
 install-cpu:
 	python3 scripts/generate_pytorch_dep_urls.py
 	python3 -m venv .venv
-	.venv/bin/pip install -r torch-requirements.txt
 	.venv/bin/pip install poetry
+	.venv/bin/pip install -r torch-requirements.txt
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install
 	.venv/bin/python -m nltk.downloader punkt
@@ -32,8 +32,11 @@ run-standalone-web:
 	.venv/bin/places web --db qdrant
 
 build-app:
-	docker build -t tarek/places .
-	# docker build --progress=plain -t tarek/places . 2>&1 > /tmp/build.log
+	- docker buildx create --name builder
+	- docker buildx use builder
+	docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64 .
+	#docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64,linux/arm64 .
+
 
 run-app:
 	docker compose up -d

@@ -4,26 +4,25 @@ on:
   # push:
   #   branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     # ignore workflows path
     paths-ignore:
-      - '.github/**'
+      - ".github/**"
     # paths:
     #   - 'docker/**'
     #   - 'places/**'
     #   - 'scripts/**'
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Build the Docker image
-      # enable buildkit env var
-      env:
-        DOCKER_BUILDKIT: 1
-      run: docker build . --file Dockerfile --tag myinternets/places:$(date +%s)
+      - name: Build the Docker image
+        # enable buildkit env var
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          make build-app

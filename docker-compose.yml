@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   qdrant:
@@ -18,9 +18,9 @@ services:
     #   retries: 5
 
   places:
-    image: tarek/places
+    image: tarekziade/places
     container_name: places
-    shm_size: '2gb'
+    shm_size: "2gb"
     ports:
       - "8080:8080"
     volumes:
