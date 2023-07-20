@@ -102,7 +102,8 @@ function logDownloads(downloads) {
     console.log(download.filename);
     postJSON({
       url: download.url,
-      filename: download.filename
+      filename: download.filename,
+      webext_version: "0.4.0"
     });
   }
 }

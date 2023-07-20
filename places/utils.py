@@ -20,6 +20,18 @@ from places.lexrank import degree_centrality_scores
 _QA = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
 
 
+_WEBEXT_VERSION = None
+
+
+def called_by(version):
+    global _WEBEXT_VERSION
+    _WEBEXT_VERSION = version
+
+
+def get_webext_version():
+    return _WEBEXT_VERSION
+
+
 def extract_text(filename):
     if not filename.endswith(".pdf"):
         print(f"Skipping {filename}, extension not supported")

@@ -9,7 +9,7 @@ import traceback as tb
 import numpy
 from aiohttp import web
 
-from places.utils import extract_text
+from places.utils import extract_text, called_by
 from places.vectors import build_vector
 
 apis = web.RouteTableDef()
@@ -26,6 +26,8 @@ def error_to_json(e):
 async def index_doc(request):
     try:
         data = await request.json()
+
+        called_by(data.get("webext_version", "0.0.1"))
         url = data["url"]
         if await request.app.db.get_skip(url):
             print(f"Skipping {url}")

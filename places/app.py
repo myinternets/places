@@ -13,6 +13,8 @@ from jinja2 import Environment, FileSystemLoader
 from places.backends import get_db
 from places.db import DB, Pages
 from places.vectors import model
+from places.utils import get_webext_version
+
 
 HERE = os.path.dirname(__file__)
 
@@ -56,6 +58,7 @@ class PlacesApplication(web.Application):
         args["db_info"] = await self.get_db_info()
         args["args"] = ({"title": "My Internets"},)
         args["description"] = "Search Your History"
+        args["webext_version"] = get_webext_version()
         content = template.render(**args)
         resp = web.Response(text=content)
         resp.headers["Content-Type"] = "text/html"
