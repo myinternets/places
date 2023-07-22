@@ -4,9 +4,9 @@ install-cpu:
 	python3 scripts/generate_pytorch_dep_urls.py
 	python3 -m venv .venv
 	.venv/bin/pip install poetry
-	.venv/bin/pip install -r torch-requirements.txt
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install
+	.venv/bin/pip install -r torch-requirements.txt
 	.venv/bin/python -m nltk.downloader punkt
 	.venv/bin/python -m nltk.downloader bcp47
 
