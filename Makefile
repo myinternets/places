@@ -33,7 +33,12 @@ build-app:
 	- docker buildx create --name builder
 	- docker buildx use builder
 	docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64,linux/arm64 .
-	#docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64,linux/arm64 .
+        # should use push
+
+build-app-local:
+	- docker buildx create --name builder
+	- docker buildx use builder
+	docker buildx build  --load --tag tarekziade/places --file Dockerfile .
 
 
 run-app:
