@@ -93,13 +93,6 @@ make web
 make run-app
 ```
 
-If you want to run using the built-in Vectra backend (no extra service required) you can
-just run the web service with
-
-```sh
-make run-standalone-web
-```
-
 
 ## Indexing
 
