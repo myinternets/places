@@ -12,6 +12,7 @@ install-cpu:
 
 install:
 	python3 -m venv .venv
+	.venv/bin/pip install "torch==2.0.1" "torchvision==0.15.2"
 	.venv/bin/pip install poetry
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install

@@ -1,25 +1,12 @@
-- [Places](#places)
-- [Install](#install)
-  - [Local](#local)
-  - [Docker](#docker)
-- [Run](#run)
-- [Indexing](#indexing)
-- [View](#view)
+# Places
 
-
-**Experimental**
-
+**Places is an experimental project, use at your own risks**
 
 [![Tests](https://github.com/myinternets/places/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/myinternets/places/actions/workflows/ruff.yml)
 
 [![Docker Image CI](https://github.com/myinternets/places/actions/workflows/docker-image.yml/badge.svg)](https://github.com/myinternets/places/actions/workflows/docker-image.yml)
 
-
-Places
-------
-
-*Semantic Search on your Browser History.*
-
+_Semantic Search on your Browser History._
 
 Finding data back into your browsing history is hard with the existing features browsers provide.
 When a page is displayed in Firefox, its url along with its title gets stored in a local
@@ -45,7 +32,7 @@ You can run Places via its docker image or directly with the source.
 
 ```sh
 # GPU
-make install 
+make install
 
 # CPU only
 make install-cpu
@@ -61,19 +48,6 @@ make build-app
 ```
 
 Note: default install uses GPU, if you don't have one, you can change it to `make install-cpu`
-
-
-### Installing the web extension (Firefox)
-
-Use a pre-release [open me in Firefox](https://github.com/myinternets/places/releases/download/v0.0.4/places@ziade.org.xpi)
-
-Alternatively, you can install a temporary extension. Open `about:debugging` in
-your browser and load a temporary extension in "This Firefox" -- you can browse
-into the `firefox` dir in the project and select any file. Once it's installed
-you can clik on the toolbar on the `extensions` icon and add the magnifier to
-your toolbar. It's a link to `http://localhost:8080` to display the search
-page.
-
 
 ## Run
 
@@ -93,34 +67,8 @@ make web
 make run-app
 ```
 
+Then open http://localhost:8080 and install the web extension using the link in the footer.
+Once the extension is installed, pages you visit will be indexed.
 
-## Indexing
-
-If you added the extension, the indexation will occur as you surf the web.
-
-You can also index old content in Firefox data by using the `index.py` script and 
-your profile's `places.sqlite` file.
-
-It is recommended to use a copy to avoid locking issues.
-
-Indexing data from that file will visit url it finds there and it will
-take a lot of time. It will also fail to index pages that require authentication
-and might also temporarely ban you from some domains. For instance if you are an avid
-Stack Overflow user, scraping their website will get you temporarely banned and
-you won't get all the content you've once browsed.
-
-This indexation feature is just useful to experiment on more content with a one
-time indexation, it's not really meant to be used all the time.
-
-
-```sh
-# from virtualenv (source .venv/bin/activate)
-places index /path/to/places.sqlite
-
-# or (if places.sqlite is in the current directory)
-make index 
-```
-
-## View
-
-Then open (even while it's indexing)  http://localhost:8080
+You can search for content using the URL bar, by typing the `places` prefix,
+or go to the service page.
