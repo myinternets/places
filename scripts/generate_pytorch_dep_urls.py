@@ -46,8 +46,8 @@ def get_pip_command(package_name, urls):
 
 def main(pip_requirements_path="torch-requirements.txt"):
     urls = []
-    urls.append(generate_torch_url("torch", "2.0.0"))
-    urls.append(generate_torch_url("torchvision", "0.15.0"))
+    urls.append(generate_torch_url("torch", "2.0.1"))
+    urls.append(generate_torch_url("torchvision", "0.15.2"))
     # print(get_pip_command("torch", urls))
     with open(f"{pip_requirements_path}", "w") as f:
         f.write('\n'.join(urls))
