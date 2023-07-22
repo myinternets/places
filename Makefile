@@ -1,18 +1,17 @@
 .PHONY: clean run-quadrant index web install build-app run-app test
 
-install-cpu:
-	python3 scripts/generate_pytorch_dep_urls.py
-	python3 -m venv .venv
-	.venv/bin/pip install poetry
-	.venv/bin/poetry config virtualenvs.create false --local
-	.venv/bin/poetry install
-	.venv/bin/pip install -r torch-requirements.txt
-	.venv/bin/python -m nltk.downloader punkt
-	.venv/bin/python -m nltk.downloader bcp47
-
 install:
 	python3 -m venv .venv
 	.venv/bin/pip install "torch==2.0.1" "torchvision==0.15.2"
+	.venv/bin/pip install poetry
+	.venv/bin/poetry config virtualenvs.create false --local
+	.venv/bin/poetry install
+	.venv/bin/python -m nltk.downloader punkt
+	.venv/bin/python -m nltk.downloader bcp47
+
+install-cpu:
+	python3 -m venv .venv
+	.venv/bin/pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cpu
 	.venv/bin/pip install poetry
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install
