@@ -44,27 +44,21 @@ Builds the Places docker image
 
 ```sh
 # builds the docker image
-make build-app
+make build-app-local
 ```
 
 Note: default install uses GPU, if you don't have one, you can change it to `make install-cpu`
 
 ## Run
 
-If you use the Qdrant backend, run Qdrant first with:
-
-```sh
-make run-quadrant
-```
-
-And then the service:
+Start the service locally or via docker:
 
 ```sh
 # direct, without docker
-make web
+make run-service
 
 # runs the docker image
-make run-app
+make run-docker
 ```
 
 Then open http://localhost:8080 and install the web extension using the link in the footer.

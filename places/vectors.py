@@ -58,11 +58,17 @@ def build_vector(data):
     cp = current_process()
     print(f"[extractor][{cp.pid}] working on {url}")
     start = time.time()
+    sentences = []
     try:
+        print(f"[extractor][{cp.pid}] tokenizing html")
         title, sentences, lang, text = tokenize_html(text)
+        print(f"[extractor][{cp.pid}] done, title is {title}")
         pages_db.set(url, {"text": text})
         sentences = list(sentences)
-        embeddings = model.encode(sentences)
+
+        print(f"[extractor][{cp.pid}] running model on sentences")
+        embeddings = model.encode(sentences, show_progress_bar=True)
+        print(f"[extractor][{cp.pid}] done")
 
         return json.dumps(
             {
@@ -73,6 +79,11 @@ def build_vector(data):
                 "text": text,
             }
         )
+    except Exception as e:
+        trace = "".join(tb.format_exception(None, e, e.__traceback__))
+        e = repr(e)
+        print(f"{e}\n{trace}")
+        raise
     finally:
         print(
             f"[extractor][{cp.pid}] {url} done in {time.time() - start} - {len(sentences)} sentences"

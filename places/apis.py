@@ -9,7 +9,7 @@ import traceback as tb
 import numpy
 from aiohttp import web
 
-from places.utils import extract_text, called_by
+from places.utils import called_by, extract_text
 from places.vectors import build_vector
 
 apis = web.RouteTableDef()
@@ -49,6 +49,7 @@ async def index_doc(request):
             return await request.app.json_resp({"error": str(e)}, 400)
 
         resp = json.loads(resp)
+        print("Vectorize")
 
         if "error" in resp:
             print(f"Failed to vectorize {resp['error']}")

@@ -39,12 +39,14 @@ RUN pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.py
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/share
 
-RUN python -m nltk.downloader punkt
-RUN python -m nltk.downloader bcp47
-RUN python -c 'from sentence_transformers import SentenceTransformer; SentenceTransformer("distiluse-base-multilingual-cased-v1")'
-
 # copy the source code
 COPY . /app
+
+# install the app
+RUN pip install -e /app/
+
+# load all the models
+RUN places load
 
 # TODO: don't run as root - add logic to entrypoint
 COPY docker/docker-entrypoint.sh /usr/local/bin/
