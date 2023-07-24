@@ -21,6 +21,9 @@ index:
 
 run-service:
 	- docker stop qdrant
+	- docker rm qdrant
+	- docker stop places
+	- docker rm places
 	docker run --name qdrant -d --rm -p 6333:6333 -v storage:/qdrant/storage qdrant/qdrant:v1.2.2
 	.venv/bin/places web
 
