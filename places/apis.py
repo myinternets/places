@@ -42,11 +42,15 @@ async def index_doc(request):
         request.app.pages_db.set(url, {"html": data["text"]})
         v_payload = json.dumps({"url": url, "text": data["text"]})
 
-        try:
-            resp = await request.app.run_in_executor(build_vector, v_payload)
-        except Exception as e:
-            print(f"Failed to vectorize {repr(e)}")
-            return await request.app.json_resp({"error": str(e)}, 400)
+        resp = build_vector(v_payload)
+
+        # for some reason, running in a separate process blocks everything in docker
+        # XXX to dig
+        # try:
+        #    resp = await request.app.run_in_executor(build_vector, v_payload)
+        # except Exception as e:
+        #    print(f"Failed to vectorize {repr(e)}")
+        #    return await request.app.json_resp({"error": str(e)}, 400)
 
         resp = json.loads(resp)
         print("Vectorize")
