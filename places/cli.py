@@ -1,5 +1,20 @@
 import argparse
 import asyncio
+import logging
+import sys
+
+
+def set_logger():
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
 
 
 def main():
@@ -29,6 +44,8 @@ def main():
     web_parser.add_argument("--qdrant-host", type=str, default="localhost")
     web_parser.add_argument("--qdrant-port", type=int, default=6333)
     args = parser.parse_args()
+
+    set_logger()
 
     if hasattr(args, "func"):
         args = vars(args)
