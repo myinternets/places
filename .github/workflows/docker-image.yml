@@ -26,4 +26,4 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: |
           make build-app
-          make run-service
+          make run-docker
