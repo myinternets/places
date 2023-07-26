@@ -133,9 +133,6 @@ _LANG_MODEL = fasttext.load_model(
     os.path.join(os.path.dirname(__file__), "lid.176.ftz")
 )
 
-nltk.download("punkt")
-nltk.download("bcp47")
-
 
 def detect_lang(text):
     try:

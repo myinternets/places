@@ -1,5 +1,20 @@
 import argparse
 import asyncio
+import logging
+import sys
+
+
+def set_logger():
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
 
 
 def main():
@@ -17,6 +32,9 @@ def main():
     query_parser.add_argument("query")
     query_parser.set_defaults(func=run_query)
 
+    load_parser = subparsers.add_parser("load", help="Load models")
+    load_parser.set_defaults(func=load_models)
+
     web_parser = subparsers.add_parser("web", help="Run the web server")
     web_parser.set_defaults(func=run_web)
     web_parser.add_argument(
@@ -26,6 +44,8 @@ def main():
     web_parser.add_argument("--qdrant-host", type=str, default="localhost")
     web_parser.add_argument("--qdrant-port", type=int, default=6333)
     args = parser.parse_args()
+
+    set_logger()
 
     if hasattr(args, "func"):
         args = vars(args)
@@ -47,7 +67,20 @@ def run_query(args):
     query(args["query"])
 
 
+def load_models(args):
+    import nltk
+
+    nltk.download("bcp47")
+    nltk.download("punkt")
+
+    from places import vectors  # NOQA
+
+    print("LOADED!")
+
+
 def run_web(args):
+    load_models(args)
+
     from places.web import main
 
     main(args)

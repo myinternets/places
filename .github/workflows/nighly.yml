@@ -1,0 +1,20 @@
+name: Nightly Run
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build the Docker image
+        # enable buildkit env var
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          make build-app
+          # TODO - push to registry, get it and test it

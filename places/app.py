@@ -12,9 +12,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from places.backends import get_db
 from places.db import DB, Pages
-from places.vectors import model
 from places.utils import get_webext_version
-
+from places.vectors import model
 
 HERE = os.path.dirname(__file__)
 

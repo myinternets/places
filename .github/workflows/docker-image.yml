@@ -25,4 +25,8 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: |
-          make build-app
+          make build-app-local
+          make run-docker
+          sleep 60
+          curl -f -LI -v http://localhost:8080
+          make stop-docker
