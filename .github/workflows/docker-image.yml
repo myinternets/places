@@ -30,3 +30,4 @@ jobs:
           make run-docker
           sleep 60
           curl -f -LI -v http://localhost:8080
+          make stop-docker

@@ -43,6 +43,12 @@ run-docker:
 	- docker stop places
 	docker compose up -d
 
+stop-docker:
+	- docker stop qdrant
+	- docker stop places
+	- docker rm qdrant
+	- docker rm places
+
 lint:
 	.venv/bin/isort places
 	.venv/bin/black places
