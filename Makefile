@@ -10,10 +10,10 @@ install:
 
 install-cpu:
 	python3 -m venv .venv
-	.venv/bin/pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cpu
 	.venv/bin/pip install poetry
 	.venv/bin/poetry config virtualenvs.create false --local
 	.venv/bin/poetry install
+	.venv/bin/pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cpu
 	.venv/bin/places load
 
 index:
