@@ -1,5 +1,8 @@
 .PHONY: clean run-service run-docker install build-app build-app-local test index
 
+VERSION := $(shell grep -m 1 version pyproject.toml | tr -s ' ' | tr -d '"' | tr -d "'" | cut -d' ' -f3)
+DATE := $(shell date '+%Y%M%d%H%M')
+
 install:
 	python3 -m venv .venv
 	.venv/bin/pip install "torch==2.0.1" "torchvision==0.15.2"
@@ -32,6 +35,12 @@ build-app:
 	- docker buildx use builder
 	docker buildx build  --tag tarekziade/places --file Dockerfile --platform=linux/amd64,linux/arm64 .
 	# should use push
+
+push-docker:
+	- docker buildx create --name builder
+	- docker buildx use builder
+	docker buildx build --push --tag tarekziade/places --tag tarekziade/places:$(VERSION)-$(DATE) --tag tarekziade/places:latest --file Dockerfile --platform=linux/amd64,linux/arm64 .
+
 
 build-app-local:
 	- docker buildx create --name builder
