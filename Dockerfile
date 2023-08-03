@@ -22,7 +22,7 @@ RUN mkdir -p /app
 WORKDIR /app
 
 # install poetry
-RUN --mount=type=cache,target=/home/.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false
 
@@ -30,11 +30,12 @@ RUN --mount=type=cache,target=/home/.cache/pip \
 COPY poetry.toml pyproject.toml /app/
 
 # install Python dependencies
-RUN --mount=type=cache,target=/home/.cache/pypoetry/cache \
-    --mount=type=cache,target=/home/.cache/pypoetry/artifacts \
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
     poetry install --only main --no-interaction --no-ansi
 
-RUN pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cpu
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install torch==2.0.1 torchvision==0.15.2 \
+      --index-url https://download.pytorch.org/whl/cpu
 
 RUN mkdir -p /app/logs
 RUN mkdir -p /app/share
@@ -43,7 +44,8 @@ RUN mkdir -p /app/share
 COPY . /app
 
 # install the app
-RUN pip install -e /app/
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+    pip install -e /app/
 
 # load all the models
 RUN places load
